@@ -1,0 +1,128 @@
+@import "tailwindcss";
+
+@theme {
+  --font-primary: var(--font-primary);
+  --font-secondary: var(--font-secondary);
+  --font-playfair: var(--font-playfair);
+
+  --color-primary: #0066cc;
+  --color-secondary: #00ccff;
+  --color-tertiary: #004c99;
+  --color-background: #f0f9ff;
+  --color-foreground: #0f172a;
+  --color-surface: #FFFFFF;
+
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-marquee: marquee 25s linear infinite;
+  --animate-marquee-reverse: marquee-reverse 25s linear infinite;
+  --animate-morph: morph 8s ease-in-out infinite;
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+
+    to {
+      transform: translateX(-100%);
+    }
+  }
+
+  @keyframes marquee-reverse {
+    from {
+      transform: translateX(-100%);
+    }
+
+    to {
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes morph {
+    0% {
+      border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    }
+
+    50% {
+      border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+    }
+
+    100% {
+      border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    }
+  }
+
+
+}
+
+:root {
+  --background: #f0f9ff;
+  --foreground: #0f172a;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-[--color-background] text-[--color-foreground] antialiased overflow-x-hidden;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/20 backdrop-blur-lg border border-white/30 shadow-xl;
+  }
+
+  .glass-dark {
+    @apply bg-[#0066cc]/20 backdrop-blur-lg border border-white/10 shadow-xl;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-[--color-primary] to-[--color-secondary];
+  }
+
+  .blob-shape {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+
+  .droplet-shape {
+    border-radius: 0% 50% 50% 50%;
+    transform: rotate(45deg);
+  }
+
+  .droplet-content {
+    transform: rotate(-45deg);
+  }
+
+  .wave-top {
+    border-radius: 50% 50% 0 0 / 15% 15% 0 0;
+  }
+
+
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-blue-50;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-[--color-primary] rounded-full hover:bg-[--color-secondary] transition-colors;
+}
