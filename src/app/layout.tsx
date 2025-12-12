@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
-import { Bricolage_Grotesque, Manjari, Playfair_Display } from 'next/font/google';
+import { Bricolage_Grotesque, Playfair_Display } from 'next/font/google';
 import './globals.css';
 
 const bricolage = Bricolage_Grotesque({ subsets: ['latin'], variable: '--font-primary' });
-const manjari = Manjari({ weight: ['100', '400', '700'], subsets: ['latin'], variable: '--font-secondary' });
+const bricolageSecondary = Bricolage_Grotesque({ subsets: ['latin'], variable: '--font-secondary' });
 const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair' });
 
 export const metadata: Metadata = {
@@ -20,8 +20,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${bricolage.variable} ${manjari.variable} ${playfair.variable}`}>
-      <body className={`${manjari.className} font-secondary`}>{children}</body>
+    <html lang="en" className={`${bricolage.variable} ${bricolageSecondary.variable} ${playfair.variable}`}>
+      <body className={`${bricolageSecondary.className} font-secondary`}>{children}</body>
     </html>
   );
 }

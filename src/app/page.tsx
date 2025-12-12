@@ -9,6 +9,7 @@ import ReviewsSection from '@/components/ReviewsSection';
 import LiquidCursor from '@/components/LiquidCursor';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import LoadingScreen from '@/components/LoadingScreen';
 
 import ScrollToTop from '@/components/ScrollToTop';
 import ScrollProgress from '@/components/ScrollProgress';
@@ -17,6 +18,7 @@ import { Reveal } from '@/components/Reveal';
 export default function Home() {
   return (
     <main className="min-h-screen bg-[--color-background] relative selection:bg-blue-200 selection:text-blue-900 overflow-x-hidden">
+      <LoadingScreen />
       <ScrollProgress />
       <LiquidCursor />
       <Navbar />
