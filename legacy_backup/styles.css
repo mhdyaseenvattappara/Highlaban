@@ -11,7 +11,7 @@
    - White: #ffffff
    
    Typography:
-   - Headings: 'Playfair Display', serif (elegant)
+   - Headings: 'bricolage grotesque', serif (elegant)
    - Body: 'Inter', sans-serif (modern, clean)
    
    ============================================ */
@@ -76,6 +76,7 @@ body {
         opacity: 0;
         transform: translateX(-50%) translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateX(-50%) translateY(0);
@@ -91,16 +92,16 @@ body {
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     border-radius: 24px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 
-                0 2px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12),
+        0 2px 8px rgba(0, 0, 0, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.3);
     pointer-events: auto;
     transition: var(--transition);
 }
 
 .dock:hover {
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.16), 
-                0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.16),
+        0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .dock-item {
@@ -236,6 +237,7 @@ body {
         opacity: 0;
         transform: translateX(-50px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -395,6 +397,7 @@ body {
         opacity: 0;
         transform: translateX(50px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -449,6 +452,7 @@ body {
         opacity: 0;
         transform: translateY(30px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -545,11 +549,13 @@ section {
 }
 
 @keyframes fadeIn {
-    to { opacity: 1; }
+    to {
+        opacity: 1;
+    }
 }
 
 .section-title {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Bricolage Grotesque', serif;
     font-size: clamp(2rem, 5vw, 3.5rem);
     font-weight: 700;
     color: var(--text-dark);
@@ -624,6 +630,7 @@ section {
         opacity: 0;
         transform: translateX(30px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -631,7 +638,7 @@ section {
 }
 
 .about-quote {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Bricolage Grotesque', serif;
     font-size: 1.75rem;
     font-weight: 600;
     color: var(--primary-blue);
@@ -717,12 +724,29 @@ section {
     animation: fadeInUp 0.6s ease-out forwards;
 }
 
-.product-card:nth-child(1) { animation-delay: 0.1s; }
-.product-card:nth-child(2) { animation-delay: 0.2s; }
-.product-card:nth-child(3) { animation-delay: 0.3s; }
-.product-card:nth-child(4) { animation-delay: 0.4s; }
-.product-card:nth-child(5) { animation-delay: 0.5s; }
-.product-card:nth-child(6) { animation-delay: 0.6s; }
+.product-card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.product-card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.product-card:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.product-card:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+.product-card:nth-child(5) {
+    animation-delay: 0.5s;
+}
+
+.product-card:nth-child(6) {
+    animation-delay: 0.6s;
+}
 
 .product-card:hover {
     transform: translateY(-8px);
@@ -792,7 +816,7 @@ section {
 }
 
 .product-name {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Bricolage Grotesque', serif;
     font-size: 1.5rem;
     font-weight: 600;
     color: var(--text-dark);
@@ -835,13 +859,33 @@ section {
     animation: fadeInUp 0.6s ease-out forwards;
 }
 
-.feature-card:nth-child(1) { animation-delay: 0.1s; }
-.feature-card:nth-child(2) { animation-delay: 0.2s; }
-.feature-card:nth-child(3) { animation-delay: 0.3s; }
-.feature-card:nth-child(4) { animation-delay: 0.4s; }
-.feature-card:nth-child(5) { animation-delay: 0.5s; }
-.feature-card:nth-child(6) { animation-delay: 0.6s; }
-.feature-card:nth-child(7) { animation-delay: 0.7s; }
+.feature-card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.feature-card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.feature-card:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.feature-card:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+.feature-card:nth-child(5) {
+    animation-delay: 0.5s;
+}
+
+.feature-card:nth-child(6) {
+    animation-delay: 0.6s;
+}
+
+.feature-card:nth-child(7) {
+    animation-delay: 0.7s;
+}
 
 .feature-card:hover {
     transform: translateX(10px);
@@ -859,7 +903,7 @@ section {
 }
 
 .feature-title {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Bricolage Grotesque', serif;
     font-size: 1.5rem;
     font-weight: 600;
     color: var(--text-dark);
@@ -939,7 +983,7 @@ section {
 }
 
 .location-name {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Bricolage Grotesque', serif;
     font-size: 1.5rem;
     font-weight: 600;
     color: var(--primary-blue);
@@ -1022,7 +1066,7 @@ section {
 }
 
 .franchise-title {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Bricolage Grotesque', serif;
     font-size: 1.75rem;
     font-weight: 600;
     color: var(--primary-blue);
@@ -1055,7 +1099,8 @@ section {
 .footer {
     background: var(--primary-blue-dark);
     color: white;
-    padding: 4rem 0 6rem; /* Extra bottom padding for dock */
+    padding: 4rem 0 6rem;
+    /* Extra bottom padding for dock */
 }
 
 .footer-content {
@@ -1368,7 +1413,8 @@ section {
 
     section {
         padding: 60px 0;
-        padding-bottom: 100px; /* Extra padding for dock */
+        padding-bottom: 100px;
+        /* Extra padding for dock */
     }
 
     .section-header {
@@ -1422,9 +1468,9 @@ section {
         opacity: 0;
         transform: translateX(-30px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
     }
 }
-

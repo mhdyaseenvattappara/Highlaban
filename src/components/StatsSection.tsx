@@ -47,13 +47,23 @@ function StatCard({ targetValue, suffix, label, delay }: StatCardProps) {
     );
 }
 
-const stats = [
-    { targetValue: 50, suffix: '+', label: 'Locations' },
-    { targetValue: 100, suffix: 'K+', label: 'Happy Customers' },
-    { targetValue: 25, suffix: '+', label: 'Dessert Varieties' },
-];
+interface StatItem {
+    targetValue: number;
+    suffix: string;
+    label: string;
+}
 
-export default function StatsSection() {
+interface StatsSectionProps {
+    stats?: StatItem[];
+}
+
+export default function StatsSection({ stats: propStats }: StatsSectionProps) {
+    const stats = propStats || [
+        { targetValue: 50, suffix: '+', label: 'Locations' },
+        { targetValue: 100, suffix: 'K+', label: 'Happy Customers' },
+        { targetValue: 25, suffix: '+', label: 'Dessert Varieties' },
+    ];
+
     return (
         <Section id="stats" className="py-8 md:py-12 bg-[#0066cc]/5">
             <div className="container mx-auto px-4">

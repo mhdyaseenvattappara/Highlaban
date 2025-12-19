@@ -1,0 +1,124 @@
+{
+  "sections": [
+    {
+      "id": "hero",
+      "type": "Hero",
+      "isVisible": true,
+      "content": {
+        "title1": "GET HIGH",
+        "title2": "ON BITE",
+        "subtitle": "Experience Egypt's Finest Creamy Desserts"
+      }
+    },
+    {
+      "id": "stats",
+      "type": "StatsSection",
+      "isVisible": true,
+      "content": {
+        "stats": [
+          {
+            "targetValue": "1",
+            "suffix": "+",
+            "label": "Locations"
+          },
+          {
+            "targetValue": 100,
+            "suffix": "K+",
+            "label": "Happy Customers"
+          },
+          {
+            "targetValue": 25,
+            "suffix": "+",
+            "label": "Dessert Varieties"
+          }
+        ]
+      }
+    },
+    {
+      "id": "marquee",
+      "type": "Marquee",
+      "isVisible": true,
+      "content": {}
+    },
+    {
+      "id": "about",
+      "type": "AboutSection",
+      "isVisible": true,
+      "content": {
+        "title": "Our Story",
+        "subtitle": "Where Tradition Meets Innovation",
+        "description1": "Rooted in time-honored Egyptian recipes and crafted with only the finest ingredients, our signature desserts are rich, creamy and irresistibly delicious. HIGHLABAN brings you authentic Egyptian desserts that celebrate tradition while creating unforgettable flavor experiences.",
+        "description2": "Every bite is a journey through tradition and indulgence, made with love by our passionate, expertly trained team.",
+        "subdescription": "We are proud to be India's first dedicated Egyptian dessert brand. From our signature Lou'a to the viral Pistachio Kunafa Bomb, we craft happiness in every droplet.",
+        "features": [
+          "Authentic Recipes",
+          "Premium Ingredients",
+          "Freshly Made Daily",
+          "Zero Preservatives",
+          "Innovative Fusions",
+          "Pure Passion"
+        ]
+      }
+    },
+    {
+      "id": "menu",
+      "type": "MenuSection",
+      "isVisible": true
+    },
+    {
+      "id": "benefits",
+      "type": "BenefitsSection",
+      "isVisible": true
+    },
+    {
+      "id": "locations",
+      "type": "LocationsSection",
+      "isVisible": true,
+      "content": {
+        "title": "Our Locations",
+        "subtitle": "Find your nearest HighLaban and experience the taste of Egypt.",
+        "locations": [
+          {
+            "city": "Mumbai - Bandra",
+            "address": "123 Hill Road, Bandra West, Mumbai, Maharashtra 400050",
+            "status": "Open Now",
+            "statusColor": "text-green-600",
+            "isComingSoon": false
+          },
+          {
+            "city": "Pune - Koregaon Park",
+            "address": "Lane 7, Koregaon Park, Pune, Maharashtra 411001",
+            "status": "Open Now",
+            "statusColor": "text-green-600",
+            "isComingSoon": false
+          },
+          {
+            "city": "Bangalore - Indiranagar",
+            "address": "100 Feet Road, Indiranagar, Bengaluru, Karnataka 560038",
+            "status": "Open Now",
+            "statusColor": "text-green-600",
+            "isComingSoon": false
+          },
+          {
+            "city": "Delhi - HKV",
+            "address": "Hauz Khas Village, New Delhi",
+            "status": "Coming Soon",
+            "statusColor": "text-orange-500",
+            "isComingSoon": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "contact",
+      "type": "ContactSection",
+      "isVisible": true
+    },
+    {
+      "id": "boss",
+      "type": "Boss",
+      "isVisible": false,
+      "content": {}
+    }
+  ]
+}

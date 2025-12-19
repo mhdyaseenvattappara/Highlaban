@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
-import { Bricolage_Grotesque, Playfair_Display } from 'next/font/google';
+import { Bricolage_Grotesque } from 'next/font/google';
 import './globals.css';
 
 const bricolage = Bricolage_Grotesque({ subsets: ['latin'], variable: '--font-primary' });
 const bricolageSecondary = Bricolage_Grotesque({ subsets: ['latin'], variable: '--font-secondary' });
-const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair' });
+const bricolageTertiary = Bricolage_Grotesque({ subsets: ['latin'], variable: '--font-bricolage' });
 
 export const metadata: Metadata = {
   title: "HighLaban - India's First Egyptian Dessert Experience",
@@ -20,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${bricolage.variable} ${bricolageSecondary.variable} ${playfair.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${bricolage.variable} ${bricolageSecondary.variable} ${bricolageTertiary.variable}`}>
       <body className={`${bricolageSecondary.className} font-secondary`}>{children}</body>
     </html>
   );

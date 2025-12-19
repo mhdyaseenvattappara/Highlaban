@@ -16,7 +16,7 @@ export default function FranchiseSection() {
     return (
         <Section id="franchise" dark className="flex-col">
             <div className="text-center mb-16 px-4">
-                <h2 className="text-4xl md:text-5xl font-bold font-playfair mb-4 text-[--color-primary]">Partner With Us</h2>
+                <h2 className="text-4xl md:text-5xl font-bold font-bricolage mb-4 text-[--color-primary]">Partner With Us</h2>
                 <p className="text-xl text-gray-500 max-w-2xl mx-auto">
                     Join the HighLaban family and bring the sweetest revolution to your city.
                 </p>

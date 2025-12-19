@@ -8,57 +8,79 @@ interface ProductCardProps {
     description: string;
     price: number;
     tag?: string;
+    tagline?: string;
     isNew?: boolean;
     image?: string;
 }
 
-export default function ProductCard({ name, description, price, tag, isNew, image }: ProductCardProps) {
+export default function ProductCard({ name, description, price, tag, tagline, isNew, image }: ProductCardProps) {
     return (
         <motion.div
-            whileHover={{ y: -8, boxShadow: "0 20px 40px rgba(0,102,204,0.15)" }}
-            className="bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 group border border-gray-100"
+            whileHover={{ y: -12, scale: 1.02, rotateZ: 0.5 }}
+            className="bg-white rounded-[2rem] overflow-hidden shadow-xl hover:shadow-[0_30px_60px_rgba(0,102,204,0.15)] transition-all duration-500 group border border-blue-50/50"
         >
-            {/* Image */}
-            <div className="relative h-56 bg-gradient-to-br from-blue-50 to-blue-100 overflow-hidden">
+            {/* Image Section */}
+            <div className="relative h-64 bg-gradient-to-br from-blue-50 to-indigo-50 overflow-hidden">
                 {image ? (
                     <Image
                         src={image}
                         alt={name}
                         fill
-                        className="object-cover group-hover:scale-110 transition-transform duration-500"
+                        className="object-contain p-4 group-hover:scale-110 transition-transform duration-700 ease-out"
                         unoptimized
                     />
                 ) : (
                     <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-32 h-32 bg-white/50 rounded-full flex items-center justify-center">
-                            <span className="text-6xl">🍰</span>
+                        <div className="w-32 h-32 bg-white/50 rounded-full flex items-center justify-center backdrop-blur-md">
+                            <span className="text-6xl animate-bounce">🍰</span>
                         </div>
                     </div>
                 )}
+
+                {/* Overlay Gradient */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
                 {(tag || isNew) && (
-                    <span className={`absolute top-4 right-4 px-4 py-2 rounded-full text-xs font-bold tracking-wider uppercase ${isNew ? 'bg-gradient-to-r from-[#0099ff] to-[#0044ff] text-white animate-pulse' : 'bg-white/90 text-[--color-primary] backdrop-blur-sm'
+                    <span className={`absolute top-4 right-4 px-4 py-2 rounded-full text-[10px] font-black tracking-[0.2em] uppercase shadow-lg backdrop-blur-md ${isNew ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white animate-pulse' : 'bg-white/90 text-blue-600'
                         }`}>
-                        {isNew ? 'New' : tag}
+                        {isNew ? 'New Arrival' : tag}
                     </span>
+                )}
+
+                {tagline && (
+                    <div className="absolute bottom-4 left-4">
+                        <span className="px-3 py-1 bg-white/90 backdrop-blur-md rounded-lg text-[10px] font-bold text-blue-600 uppercase tracking-wider shadow-sm">
+                            {tagline}
+                        </span>
+                    </div>
                 )}
             </div>
 
-            {/* Content */}
-            <div className="p-6">
-                <h3 className="text-2xl font-black font-[family-name:var(--font-primary)] text-[--color-primary] mb-2 group-hover:text-[#0099ff] transition-colors">
-                    {name}
-                </h3>
-                <p className="text-gray-600 mb-4 text-sm leading-relaxed">
-                    {description}
-                </p>
-                <div className="flex items-center justify-between">
-                    <span className="text-3xl font-black font-[family-name:var(--font-primary)] text-[--color-primary]">
-                        ₹{price}
-                    </span>
+            {/* Content Section */}
+            <div className="p-8">
+                <div className="mb-4">
+                    <h3 className="text-2xl font-black font-bricolage text-blue-900 mb-1 group-hover:text-blue-600 transition-colors duration-300">
+                        {name}
+                    </h3>
+                    <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-2">
+                        {tagline || "HighLaban Special"}
+                    </p>
+                    <p className="text-gray-500 text-sm leading-relaxed line-clamp-2">
+                        {description}
+                    </p>
+                </div>
+
+                <div className="flex items-center justify-between mt-6">
+                    <div className="flex flex-col">
+                        <span className="text-xs font-bold text-gray-400 line-through">₹{Math.round(price * 1.2)}</span>
+                        <span className="text-3xl font-black font-bricolage text-blue-600">
+                            ₹{price}
+                        </span>
+                    </div>
                     <motion.button
-                        whileHover={{ scale: 1.05 }}
+                        whileHover={{ scale: 1.05, boxShadow: "0 10px 25px rgba(0,102,204,0.3)" }}
                         whileTap={{ scale: 0.95 }}
-                        className="px-6 py-2 bg-[--color-primary] text-white rounded-full font-bold text-sm hover:bg-[#0099ff] transition-colors shadow-lg"
+                        className="px-8 py-3 bg-blue-600 text-white rounded-2xl font-black text-sm hover:bg-blue-500 transition-all duration-300 shadow-blue-200 uppercase tracking-widest transform"
                     >
                         Order
                     </motion.button>

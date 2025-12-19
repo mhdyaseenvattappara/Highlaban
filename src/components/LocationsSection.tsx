@@ -4,8 +4,26 @@ import Section from './Section';
 import { motion } from 'framer-motion';
 import { MapPin } from 'lucide-react';
 
-export default function LocationsSection() {
-    const locations = [
+interface Location {
+    city: string;
+    address: string;
+    status: string;
+    statusColor: string;
+    isComingSoon?: boolean;
+}
+
+interface LocationsSectionProps {
+    title?: string;
+    subtitle?: string;
+    locations?: Location[];
+}
+
+export default function LocationsSection({
+    title = "Our Locations",
+    subtitle = "Find your nearest HighLaban and experience the taste of Egypt.",
+    locations: propLocations
+}: LocationsSectionProps) {
+    const locations = propLocations || [
         {
             city: "Mumbai - Bandra",
             address: "123 Hill Road, Bandra West, Mumbai, Maharashtra 400050",
@@ -27,8 +45,8 @@ export default function LocationsSection() {
         {
             city: "Delhi - HKV",
             address: "Hauz Khas Village, New Delhi",
-            status: "Coming Soon",
-            statusColor: "text-orange-500",
+            "status": "Coming Soon",
+            "statusColor": "text-orange-500",
             isComingSoon: true
         }
     ];
@@ -40,9 +58,9 @@ export default function LocationsSection() {
                 <motion.h2
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    className="text-4xl md:text-5xl font-playfair font-bold text-[--color-primary] mb-6"
+                    className="text-4xl md:text-5xl font-bricolage font-bold text-[--color-primary] mb-6"
                 >
-                    Our Locations
+                    {title}
                 </motion.h2>
                 <motion.p
                     initial={{ opacity: 0, y: 20 }}
@@ -50,7 +68,7 @@ export default function LocationsSection() {
                     transition={{ delay: 0.2 }}
                     className="text-gray-600 max-w-2xl mx-auto"
                 >
-                    Find your nearest HighLaban and experience the taste of Egypt.
+                    {subtitle}
                 </motion.p>
             </div>
 

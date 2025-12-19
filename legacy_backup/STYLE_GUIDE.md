@@ -52,7 +52,7 @@ All colors are defined as CSS variables in `styles.css` for easy customization:
 
 ### Font Families
 
-1. **Headings**: `'Playfair Display', serif`
+1. **Headings**: `'Bricolage Grotesque', serif`
    - Elegant, refined serif font
    - Used for: Main headings, hero headline, section titles, product names
    - Weights: 400 (regular), 600 (semi-bold), 700 (bold)
@@ -137,7 +137,7 @@ All colors are defined as CSS variables in `styles.css` for easy customization:
 - Fixed position at top
 - Background: `rgba(255, 255, 255, 0.95)` with backdrop blur
 - Height: Auto, padding `1rem`
-- Logo: `1.75rem`, Playfair Display, bold
+- Logo: `1.75rem`, Bricolage Grotesque, bold
 - Links: `0.95rem`, medium weight
 - Active indicator: Gold underline on hover
 

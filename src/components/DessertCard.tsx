@@ -7,11 +7,12 @@ interface DessertCardProps {
     name: string;
     price: number;
     tag?: string;
+    tagline?: string;
     isNew?: boolean;
     description?: string;
 }
 
-export default function DessertCard({ name, price, tag, isNew, description = "Delicious Egyptian delicacy" }: DessertCardProps) {
+export default function DessertCard({ name, price, tag, tagline, isNew, description = "Delicious Egyptian delicacy" }: DessertCardProps) {
     const ref = useRef<HTMLDivElement>(null);
 
     // 3D Tilt Effect
@@ -71,23 +72,24 @@ export default function DessertCard({ name, price, tag, isNew, description = "De
 
                     {/* Tag / Badge */}
                     {(tag || isNew) && (
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold mb-2 ${isNew ? 'bg-blue-500 text-white animate-pulse' : 'bg-blue-100 text-blue-600'
+                        <span className={`px-3 py-1 rounded-full text-[10px] font-black tracking-wider mb-2 ${isNew ? 'bg-blue-600 text-white animate-pulse' : 'bg-blue-100 text-blue-600'
                             }`}>
                             {isNew ? 'NEW' : tag}
                         </span>
                     )}
 
-                    <h3 className="text-xl font-bold text-gray-800 mb-1 font-playfair">{name}</h3>
-                    <p className="text-sm text-gray-500 mb-3">{description}</p>
+                    <h3 className="text-xl font-black text-blue-900 mb-1 font-bricolage">{name}</h3>
+                    {tagline && <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1">{tagline}</p>}
+                    <p className="text-[11px] text-gray-500 mb-3 line-clamp-2">{description}</p>
 
-                    <div className="text-lg font-bold text-[--color-primary]">
+                    <div className="text-xl font-black text-blue-600">
                         ₹{price}
                     </div>
 
                     <motion.button
-                        whileHover={{ scale: 1.1 }}
+                        whileHover={{ scale: 1.1, backgroundColor: "#2563eb" }}
                         whileTap={{ scale: 0.95 }}
-                        className="mt-4 px-6 py-2 bg-[--color-primary] text-white rounded-full text-sm font-semibold shadow-lg shadow-blue-200 hover:shadow-blue-300 transition-all"
+                        className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-full text-xs font-black shadow-lg shadow-blue-200 uppercase tracking-widest transition-all"
                     >
                         Order
                     </motion.button>

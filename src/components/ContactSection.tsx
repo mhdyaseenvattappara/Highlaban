@@ -14,7 +14,7 @@ export default function ContactSection() {
                 <div className="md:w-5/12 bg-[#0066cc] p-12 text-white relative overflow-hidden flex flex-col justify-between">
                     <div className="relative z-10">
                         <span className="opacity-70 uppercase tracking-widest text-sm font-bold mb-2 block">Contact Us</span>
-                        <h2 className="text-4xl font-bold font-playfair mb-8">Get in Touch</h2>
+                        <h2 className="text-4xl font-bold font-bricolage mb-8">Get in Touch</h2>
                         <p className="mb-12 text-white/90 text-lg leading-relaxed">
                             Have a question, feedback, or just want to say hello? We'd love to hear from you.
                         </p>
@@ -72,40 +72,83 @@ export default function ContactSection() {
 
                 {/* Form Side */}
                 <div className="md:w-7/12 p-12 bg-gray-50 flex flex-col justify-center">
-                    <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Name</label>
-                                <input type="text" className="w-full px-5 py-4 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0066cc] transition-all font-medium shadow-sm" placeholder="John Doe" />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Phone</label>
-                                <input type="tel" className="w-full px-5 py-4 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0066cc] transition-all font-medium shadow-sm" placeholder="+91..." />
-                            </div>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">Subject</label>
-                            <select className="w-full px-5 py-4 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0066cc] transition-all font-medium shadow-sm text-gray-600">
-                                <option>General Inquiry</option>
-                                <option>Franchise Support</option>
-                                <option>Feedback</option>
-                                <option>Other</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">Message</label>
-                            <textarea rows={5} className="w-full px-5 py-4 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0066cc] transition-all font-medium shadow-sm resize-none" placeholder="How can we help you?"></textarea>
-                        </div>
-                        <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            className="w-full py-5 bg-gradient-to-r from-[#0099ff] to-[#0044ff] text-white font-bold rounded-xl shadow-xl shadow-blue-200 hover:shadow-2xl transition-all text-lg tracking-wide uppercase"
-                        >
-                            Send Message
-                        </motion.button>
-                    </form>
+                    <ContactForm />
                 </div>
             </div>
         </Section>
+    );
+}
+
+import { useState } from 'react';
+
+function ContactForm() {
+    const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setStatus('loading');
+
+        const form = e.currentTarget;
+        const data = {
+            name: (form.elements.namedItem('name') as HTMLInputElement).value,
+            phone: (form.elements.namedItem('phone') as HTMLInputElement).value,
+            subject: (form.elements.namedItem('subject') as HTMLSelectElement).value,
+            message: (form.elements.namedItem('message') as HTMLTextAreaElement).value,
+        };
+
+        try {
+            const res = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+
+            if (res.ok) {
+                setStatus('success');
+                form.reset();
+            } else {
+                setStatus('error');
+            }
+        } catch (err) {
+            setStatus('error');
+        }
+    };
+
+    return (
+        <form className="space-y-6" onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Name</label>
+                    <input name="name" required type="text" className="w-full px-5 py-4 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0066cc] transition-all font-medium shadow-sm" placeholder="John Doe" />
+                </div>
+                <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Phone</label>
+                    <input name="phone" required type="tel" className="w-full px-5 py-4 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0066cc] transition-all font-medium shadow-sm" placeholder="+91..." />
+                </div>
+            </div>
+            <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Subject</label>
+                <select name="subject" className="w-full px-5 py-4 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0066cc] transition-all font-medium shadow-sm text-gray-600">
+                    <option>General Inquiry</option>
+                    <option>Franchise Support</option>
+                    <option>Feedback</option>
+                    <option>Other</option>
+                </select>
+            </div>
+            <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Message</label>
+                <textarea name="message" required rows={5} className="w-full px-5 py-4 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0066cc] transition-all font-medium shadow-sm resize-none" placeholder="How can we help you?"></textarea>
+            </div>
+            <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                disabled={status === 'loading' || status === 'success'}
+                className={`w-full py-5 text-white font-bold rounded-xl shadow-xl transition-all text-lg tracking-wide uppercase
+                    ${status === 'success' ? 'bg-green-500 hover:shadow-green-200' : 'bg-gradient-to-r from-[#0099ff] to-[#0044ff] shadow-blue-200 hover:shadow-2xl'}`}
+            >
+                {status === 'loading' ? 'Sending...' : status === 'success' ? 'Message Sent!' : 'Send Message'}
+            </motion.button>
+            {status === 'error' && <p className="text-red-500 text-center font-bold">Something went wrong. Please try again.</p>}
+        </form>
     );
 }
