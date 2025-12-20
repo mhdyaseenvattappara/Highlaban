@@ -6,6 +6,8 @@ import CurvedDivider from './CurvedDivider';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 
+import Link from 'next/link';
+
 export default function MenuSection({
     title = "Crush the craving.",
     subtitle = "17 Drops of Heaven. Authentic Egyptian recipes with a modern twist.",
@@ -74,12 +76,12 @@ export default function MenuSection({
 
                 {visibleCount < desserts.length && (
                     <div className="mt-16 text-center">
-                        <button
-                            onClick={() => setVisibleCount(prev => prev + 9)}
+                        <Link
+                            href="/menu"
                             className="px-8 py-3 bg-white border-2 border-blue-100 text-blue-600 rounded-full font-bold hover:bg-blue-50 hover:border-blue-200 transition-all shadow-sm hover:shadow-md inline-block uppercase tracking-widest text-sm"
                         >
                             View More
-                        </button>
+                        </Link>
                     </div>
                 )}
             </div>

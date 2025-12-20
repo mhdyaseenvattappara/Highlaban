@@ -3,24 +3,8 @@
     "id": "1",
     "name": "Super Admin",
     "username": "admin",
-    "password": "admin123",
+    "password": "j",
     "role": "super_admin",
-    "image": "https://ui-avatars.com/api/?name=Super+Admin&background=0f172a&color=fff"
-  },
-  {
-    "id": "1766229773207",
-    "name": "Yaseen",
-    "username": "Yasi",
-    "password": "Yasi",
-    "role": "admin",
-    "image": "https://ui-avatars.com/api/?name=Yaseen&background=random"
-  },
-  {
-    "id": "1766229897272",
-    "name": "Yaseen",
-    "username": "Yaseen",
-    "password": "yaseen",
-    "role": "admin",
-    "image": "https://ui-avatars.com/api/?name=Yaseen&background=random"
+    "image": "/uploads/1766230886832-highlaban-logo.png"
   }
 ]

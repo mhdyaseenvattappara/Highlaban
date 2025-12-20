@@ -141,6 +141,14 @@
       "description": "Delicious chocolate dessert...",
       "tagline": "Sweet Treat",
       "image": "/uploads/1766218837625-HaliboNutella.webp"
+    },
+    {
+      "name": "Pacha Vellam",
+      "price": 130,
+      "description": "Kudichaal Pwolikum",
+      "tagline": "Sweet Treat",
+      "image": "/uploads/1766230966011-img1.webp",
+      "tag": "New Arrival"
     }
   ]
 }

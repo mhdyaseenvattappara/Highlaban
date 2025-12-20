@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { revalidatePath } from 'next/cache';
 
 export async function GET() {
     try {
@@ -17,6 +18,7 @@ export async function POST(request: Request) {
         const body = await request.json();
         const productsPath = path.join(process.cwd(), 'src', 'data', 'products.json');
         fs.writeFileSync(productsPath, JSON.stringify(body, null, 2), 'utf8');
+        revalidatePath('/');
         return NextResponse.json({ success: true });
     } catch (error) {
         return NextResponse.json({ error: 'Failed to save products' }, { status: 500 });

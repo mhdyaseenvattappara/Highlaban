@@ -127,7 +127,7 @@ export default function AdminDashboard() {
                 user?.role === 'super_admin' ? fetch('/api/admin/users') : Promise.resolve(null)
             ]);
 
-            const [configRes, productsRes, messagesRes, locationsRes] = responses;
+            const [configRes, productsRes, messagesRes, locationsRes, userRes] = responses;
 
             setConfig(await configRes.json());
             setProducts(await productsRes.json());

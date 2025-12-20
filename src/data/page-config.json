@@ -94,12 +94,6 @@
       "id": "contact",
       "type": "ContactSection",
       "isVisible": true
-    },
-    {
-      "id": "boss",
-      "type": "Boss",
-      "isVisible": false,
-      "content": {}
     }
   ]
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { revalidatePath } from 'next/cache';
 
 export async function POST(request: Request) {
     try {
@@ -8,6 +9,7 @@ export async function POST(request: Request) {
         const configPath = path.join(process.cwd(), 'src', 'data', 'page-config.json');
 
         fs.writeFileSync(configPath, JSON.stringify(body, null, 2), 'utf8');
+        revalidatePath('/');
 
         return NextResponse.json({ success: true });
     } catch (error) {

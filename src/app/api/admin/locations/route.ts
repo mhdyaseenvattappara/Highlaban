@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { revalidatePath } from 'next/cache';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,6 +31,7 @@ export async function POST(request: Request) {
         const locationsPath = path.join(process.cwd(), 'src', 'data', 'locations.json');
 
         fs.writeFileSync(locationsPath, JSON.stringify(locations, null, 2));
+        revalidatePath('/');
 
         return NextResponse.json({ success: true, message: 'Locations updated successfully' });
     } catch (error) {
