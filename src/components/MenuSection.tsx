@@ -4,11 +4,19 @@ import Section from './Section';
 import ProductCard from './ProductCard';
 import CurvedDivider from './CurvedDivider';
 import { motion } from 'framer-motion';
+import { useState } from 'react';
 
-import productsData from '@/data/products.json';
-
-export default function MenuSection({ title = "Crush the craving.", subtitle = "17 Drops of Heaven. Authentic Egyptian recipes with a modern twist." }: { title?: string, subtitle?: string }) {
-    const desserts = productsData.products;
+export default function MenuSection({
+    title = "Crush the craving.",
+    subtitle = "17 Drops of Heaven. Authentic Egyptian recipes with a modern twist.",
+    products = []
+}: {
+    title?: string,
+    subtitle?: string,
+    products?: any[]
+}) {
+    const desserts = products.length > 0 ? products : [];
+    const [visibleCount, setVisibleCount] = useState(9);
 
     return (
         <section id="menu" className="relative bg-[#f0f9ff] py-8 md:py-12 z-10 selection:bg-blue-200">
@@ -43,7 +51,7 @@ export default function MenuSection({ title = "Crush the craving.", subtitle = "
                     }}
                     className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
                 >
-                    {desserts.map((dessert: any, index: number) => (
+                    {desserts.slice(0, visibleCount).map((dessert: any, index: number) => (
                         <motion.div
                             key={index}
                             variants={{
@@ -63,6 +71,17 @@ export default function MenuSection({ title = "Crush the craving.", subtitle = "
                         </motion.div>
                     ))}
                 </motion.div>
+
+                {visibleCount < desserts.length && (
+                    <div className="mt-16 text-center">
+                        <button
+                            onClick={() => setVisibleCount(prev => prev + 9)}
+                            className="px-8 py-3 bg-white border-2 border-blue-100 text-blue-600 rounded-full font-bold hover:bg-blue-50 hover:border-blue-200 transition-all shadow-sm hover:shadow-md inline-block uppercase tracking-widest text-sm"
+                        >
+                            View More
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* Bottom Wave - linking to next white section usually */}

@@ -1,7 +1,9 @@
+
 'use client';
 
 import Section from './Section';
 import { motion } from 'framer-motion';
+import { CheckCircle2 } from 'lucide-react';
 
 interface AboutSectionProps {
     title?: string;
@@ -15,56 +17,84 @@ interface AboutSectionProps {
 export default function AboutSection({
     title = "Our Story",
     subtitle = "Where Tradition Meets Innovation",
-    description1 = "Rooted in time-honored Egyptian recipes and crafted with only the finest ingredients, our signature desserts are rich, creamy and irresistibly delicious. HIGHLABAN brings you authentic Egyptian desserts that celebrate tradition while creating unforgettable flavor experiences.",
-    description2 = "Every bite is a journey through tradition and indulgence, made with love by our passionate, expertly trained team.",
-    subdescription = "We are proud to be India's first dedicated Egyptian dessert brand. From our signature Lou'a to the viral Pistachio Kunafa Bomb, we craft happiness in every droplet.",
-    features = [
-        "Authentic Recipes",
-        "Premium Ingredients",
-        "Freshly Made Daily",
-        "Zero Preservatives",
-        "Innovative Fusions",
-        "Pure Passion"
-    ]
+    description1,
+    description2,
+    subdescription,
+    features = []
 }: AboutSectionProps) {
     return (
-        <Section id="about" background="champagne" className="min-h-screen flex items-center">
-            <div className="flex flex-col md:flex-row items-center gap-12">
+        <Section id="about" className="min-h-screen flex items-center justify-center bg-white py-20 px-4 md:px-8 overflow-hidden">
+            <div className="w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-12 lg:gap-24 relative">
+
+                {/* Left Side - Our Story Content (Blob/Shape Background) */}
                 <motion.div
                     initial={{ opacity: 0, x: -50 }}
                     whileInView={{ opacity: 1, x: 0 }}
-                    className="md:w-1/2 relative"
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8 }}
+                    className="lg:w-5/12 relative z-10"
                 >
-                    <div className="bg-white/80 backdrop-blur-sm p-10 md:p-14 blob-shape shadow-[0_20px_60px_rgba(0,102,204,0.15)] relative z-10 border border-white/40">
-                        <h2 className="text-4xl font-[family-name:var(--font-primary)] font-bold text-[--color-primary] mb-6">{title}</h2>
-                        <p className="text-gray-700 text-lg leading-relaxed mb-4 font-[family-name:var(--font-secondary)]">
-                            {description1}
-                        </p>
-                        <p className="text-gray-700 text-lg leading-relaxed font-[family-name:var(--font-secondary)]">
-                            {description2}
-                        </p>
+                    {/* Abstract Blue Blob Shape Background */}
+                    <div className="absolute inset-0 bg-blue-50 rounded-[4rem] -rotate-3 scale-110 -z-10 shadow-inner translate-y-4 translate-x-4" />
+                    <div className="bg-white/80 backdrop-blur-sm border border-blue-100 p-8 md:p-12 rounded-[3rem] shadow-xl relative overflow-hidden">
+
+                        {/* Circle Element (Logo placeholder from reference) */}
+                        <div className="absolute top-8 right-8 w-16 h-16 rounded-full bg-white shadow-lg border border-slate-100 flex items-center justify-center p-3 animate-spin-slow">
+                            <img src="/uploads/logo.png" alt="HighLaban Logo" className="w-full h-full object-contain" />
+                        </div>
+
+                        <h2 className="text-4xl font-black font-bricolage text-slate-900 mb-8">{title}</h2>
+
+                        <div className="space-y-6 text-slate-600 font-medium leading-relaxed text-lg">
+                            <p>{description1}</p>
+                            <p>{description2}</p>
+                        </div>
                     </div>
-                    {/* Animated Blob Behind */}
-                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-[#00ccff] to-[#0066cc] opacity-10 blob-shape -z-0 transform scale-110 rotate-6 animate-morph"></div>
                 </motion.div>
 
+                {/* Right Side - Innovation & Features */}
                 <motion.div
                     initial={{ opacity: 0, x: 50 }}
                     whileInView={{ opacity: 1, x: 0 }}
-                    className="md:w-1/2"
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8, delay: 0.2 }}
+                    className="lg:w-6/12 space-y-8"
                 >
-                    <h3 className="text-4xl font-bold mb-6 text-gray-800 font-playfair" dangerouslySetInnerHTML={{ __html: subtitle.replace(' ', '<br/>') }}></h3>
-                    <p className="text-gray-600 mb-8 text-xl">
+                    <div className="space-y-4">
+                        <h3 className="text-slate-500 font-bold uppercase tracking-widest text-sm">About Us</h3>
+                        <h2 className="text-4xl md:text-5xl font-black font-bricolage text-slate-900 leading-tight">
+                            {subtitle}
+                        </h2>
+                    </div>
+
+                    <p className="text-lg text-slate-600 leading-relaxed font-medium">
                         {subdescription}
                     </p>
-                    <ul className="grid grid-cols-2 gap-4">
-                        {features.map((item, i) => (
-                            <li key={i} className="flex items-center gap-3 text-gray-700 font-bold p-3 bg-white rounded-xl shadow-sm border border-blue-50">
-                                <span className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-[--color-primary] text-sm">✓</span>
-                                {item}
-                            </li>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                        {features.map((feature, idx) => (
+                            <motion.div
+                                key={idx}
+                                initial={{ opacity: 0, y: 10 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: 0.4 + (idx * 0.1) }}
+                                className="flex items-center gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-100 hover:border-blue-200 transition-colors group"
+                            >
+                                <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                                    <CheckCircle2 size={16} strokeWidth={3} />
+                                </div>
+                                <span className="font-bold text-slate-700 text-sm md:text-base">{feature}</span>
+                            </motion.div>
                         ))}
-                    </ul>
+                    </div>
+
+                    <div className="pt-8 flex justify-end">
+                        <div className="w-12 h-12 rounded-full border-2 border-slate-200 flex items-center justify-center text-slate-400 cursor-pointer hover:border-blue-500 hover:text-blue-500 transition-all hover:-translate-y-1">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m5 12 7-7 7 7" /><path d="M12 19V5" /></svg>
+                        </div>
+                    </div>
+
                 </motion.div>
             </div>
         </Section>

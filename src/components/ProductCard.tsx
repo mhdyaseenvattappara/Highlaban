@@ -20,7 +20,7 @@ export default function ProductCard({ name, description, price, tag, tagline, is
             className="bg-white rounded-[2rem] overflow-hidden shadow-xl hover:shadow-[0_30px_60px_rgba(0,102,204,0.15)] transition-all duration-500 group border border-blue-50/50"
         >
             {/* Image Section */}
-            <div className="relative h-64 bg-gradient-to-br from-blue-50 to-indigo-50 overflow-hidden">
+            <div className="relative h-64 overflow-hidden pt-8">
                 {image ? (
                     <Image
                         src={image}
@@ -31,14 +31,11 @@ export default function ProductCard({ name, description, price, tag, tagline, is
                     />
                 ) : (
                     <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-32 h-32 bg-white/50 rounded-full flex items-center justify-center backdrop-blur-md">
+                        <div className="w-32 h-32 bg-gray-100 rounded-full flex items-center justify-center">
                             <span className="text-6xl animate-bounce">🍰</span>
                         </div>
                     </div>
                 )}
-
-                {/* Overlay Gradient */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                 {(tag || isNew) && (
                     <span className={`absolute top-4 right-4 px-4 py-2 rounded-full text-[10px] font-black tracking-[0.2em] uppercase shadow-lg backdrop-blur-md ${isNew ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white animate-pulse' : 'bg-white/90 text-blue-600'
@@ -49,7 +46,7 @@ export default function ProductCard({ name, description, price, tag, tagline, is
 
                 {tagline && (
                     <div className="absolute bottom-4 left-4">
-                        <span className="px-3 py-1 bg-white/90 backdrop-blur-md rounded-lg text-[10px] font-bold text-blue-600 uppercase tracking-wider shadow-sm">
+                        <span className="px-3 py-1 bg-white/90 backdrop-blur-md rounded-lg text-[10px] font-bold text-blue-600 uppercase tracking-wider shadow-sm border border-blue-100">
                             {tagline}
                         </span>
                     </div>

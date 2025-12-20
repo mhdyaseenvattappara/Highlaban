@@ -11,6 +11,14 @@
       }
     },
     {
+      "id": "marquee",
+      "type": "Marquee",
+      "isVisible": true,
+      "content": {
+        "text": "A Touch of Egyptian Tradition • Silky Smooth • Luxuriously Creamy • Bursting with Authentic Flavour • Made with the Finest Ingredients"
+      }
+    },
+    {
       "id": "stats",
       "type": "StatsSection",
       "isVisible": true,
@@ -33,12 +41,6 @@
           }
         ]
       }
-    },
-    {
-      "id": "marquee",
-      "type": "Marquee",
-      "isVisible": true,
-      "content": {}
     },
     {
       "id": "about",
@@ -79,29 +81,8 @@
         "subtitle": "Find your nearest HighLaban and experience the taste of Egypt.",
         "locations": [
           {
-            "city": "Mumbai - Bandra",
-            "address": "123 Hill Road, Bandra West, Mumbai, Maharashtra 400050",
-            "status": "Open Now",
-            "statusColor": "text-green-600",
-            "isComingSoon": false
-          },
-          {
-            "city": "Pune - Koregaon Park",
-            "address": "Lane 7, Koregaon Park, Pune, Maharashtra 411001",
-            "status": "Open Now",
-            "statusColor": "text-green-600",
-            "isComingSoon": false
-          },
-          {
-            "city": "Bangalore - Indiranagar",
-            "address": "100 Feet Road, Indiranagar, Bengaluru, Karnataka 560038",
-            "status": "Open Now",
-            "statusColor": "text-green-600",
-            "isComingSoon": false
-          },
-          {
-            "city": "Delhi - HKV",
-            "address": "Hauz Khas Village, New Delhi",
+            "city": "Banglore",
+            "address": "Banglore-India",
             "status": "Coming Soon",
             "statusColor": "text-orange-500",
             "isComingSoon": true

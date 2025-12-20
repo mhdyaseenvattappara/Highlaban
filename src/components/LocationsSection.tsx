@@ -72,14 +72,14 @@ export default function LocationsSection({
                 </motion.p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-7xl px-4">
+            <div className="flex flex-wrap justify-center items-center gap-6 w-full max-w-7xl px-4 mx-auto">
                 {locations.map((loc, index) => (
                     <motion.div
                         key={index}
                         initial={{ opacity: 0, scale: 0.9 }}
                         whileInView={{ opacity: 1, scale: 1 }}
                         transition={{ delay: index * 0.1 }}
-                        className={`bg-white p-8 rounded-2xl shadow-md hover:shadow-xl transition-all border border-gray-100 ${loc.isComingSoon ? 'opacity-80' : ''}`}
+                        className={`bg-white p-8 rounded-2xl shadow-md hover:shadow-xl transition-all border border-gray-100 w-full md:w-[calc(50%-12px)] lg:w-[calc(25%-18px)] ${loc.isComingSoon ? 'opacity-80' : ''}`}
                     >
                         <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-[--color-primary] mb-4">
                             <MapPin size={20} />

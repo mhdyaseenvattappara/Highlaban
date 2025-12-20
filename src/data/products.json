@@ -22,7 +22,7 @@
       "tag": "Trending",
       "tagline": "Fluffy Joy",
       "description": "Fluffy, rich, and irresistible.",
-      "image": "/uploads/1766165620653-KoushiriLotus.webp"
+      "image": "/uploads/1766218749209-BamboozaPistachio.webp"
     },
     {
       "name": "Ambalyh",
@@ -30,7 +30,7 @@
       "isNew": true,
       "tagline": "Modern Fusion",
       "description": "New sensation in town.",
-      "image": "https://picsum.photos/seed/Ambalyh/400/300"
+      "image": "/uploads/1766218754964-HaliboNutella.webp"
     },
     {
       "name": "Qashtuta",
@@ -38,7 +38,7 @@
       "tag": "Bestseller",
       "tagline": "Creamy Perfection",
       "description": "Creamy delight with a twist.",
-      "image": "https://picsum.photos/seed/Qashtuta/400/300"
+      "image": "/uploads/1766218759990-PistachiobelgiumChocolate.webp"
     },
     {
       "name": "Choco Crepe",
@@ -46,7 +46,7 @@
       "tag": "Popular",
       "tagline": "Indulgent Fold",
       "description": "Decadent chocolate folded to perfection.",
-      "image": "https://picsum.photos/seed/Choco%20Crepe/400/300"
+      "image": "/uploads/1766218765274-QashtutaNutellahazelnut.webp"
     },
     {
       "name": "Velour Mango Cream",
@@ -54,7 +54,7 @@
       "isNew": true,
       "tagline": "Smooth Mango",
       "description": "Smooth mango perfection.",
-      "image": "https://picsum.photos/seed/Velour%20Mango%20Cream/400/300"
+      "image": "/uploads/1766218770099-Chocolate.webp"
     },
     {
       "name": "Salankatia",
@@ -62,7 +62,7 @@
       "tag": "Premium",
       "tagline": "Exotic Flavor",
       "description": "Exotic and rich flavors.",
-      "image": "https://picsum.photos/seed/Salankatia/400/300"
+      "image": "/uploads/1766218776153-Nutella.webp"
     },
     {
       "name": "Koushri",
@@ -70,7 +70,7 @@
       "tag": "Bestseller",
       "tagline": "Sweet Classic",
       "description": "Sweet twist on a classic.",
-      "image": "/products/koushri.png"
+      "image": "/uploads/1766218779927-HaliboNutella.webp"
     },
     {
       "name": "Crispy Ummali",
@@ -78,7 +78,7 @@
       "tag": "Popular",
       "tagline": "Crunchy Pudding",
       "description": "Crunchy puff pastry pudding.",
-      "image": "https://picsum.photos/seed/Crispy%20Ummali/400/300"
+      "image": "/uploads/1766218789129-BamboozaPistachio.webp"
     },
     {
       "name": "Laban Delight",
@@ -86,7 +86,7 @@
       "tag": "Bestseller",
       "tagline": "Fresh Milk",
       "description": "The classic taste of Laban.",
-      "image": "https://picsum.photos/seed/Laban%20Delight/400/300"
+      "image": "/uploads/1766218796849-PistachiobelgiumChocolate.webp"
     },
     {
       "name": "Lotus Delight",
@@ -94,7 +94,7 @@
       "tag": "Trending",
       "tagline": "Biscoff Infused",
       "description": "Infused with Lotus Biscoff goodness.",
-      "image": "https://picsum.photos/seed/Lotus%20Delight/400/300"
+      "image": "/uploads/1766218800584-QashtutaNutellahazelnut.webp"
     },
     {
       "name": "Pistachio Kunafa Bomb",
@@ -102,7 +102,7 @@
       "tag": "Viral Hit",
       "tagline": "Creamy Nutty",
       "description": "Exploding with pistachio cream.",
-      "image": "https://picsum.photos/seed/Pistachio%20Kunafa%20Bomb/400/300"
+      "image": "/uploads/1766218805144-Chocolate.webp"
     },
     {
       "name": "Fatak Bomb",
@@ -110,7 +110,7 @@
       "isNew": true,
       "tagline": "Flavor Blast",
       "description": "A flavor explosion.",
-      "image": "https://picsum.photos/seed/Fatak%20Bomb/400/300"
+      "image": "/uploads/1766218821856-Nutella.webp"
     },
     {
       "name": "Layali Nafkha",
@@ -118,7 +118,7 @@
       "tag": "Popular",
       "tagline": "Puffy Joy",
       "description": "Nights of puffed pastry joy.",
-      "image": "https://picsum.photos/seed/Layali%20Nafkha/400/300"
+      "image": "/uploads/1766218825754-PistachiobelgiumChocolate.webp"
     },
     {
       "name": "Cream Cheese Kunafa",
@@ -126,20 +126,21 @@
       "tag": "Premium",
       "tagline": "Rich Filling",
       "description": "Rich cream cheese filling.",
-      "image": "https://picsum.photos/seed/Cream%20Cheese%20Kunafa/400/300"
+      "image": "/uploads/1766218833584-QashtutaNutellahazelnut.webp"
     },
     {
-      "name": "New Dessert",
+      "name": "Peridatha Dessert",
       "price": 0,
       "tagline": "New Tagline",
       "description": "Description here",
-      "image": "https://picsum.photos/400/300"
+      "image": "/uploads/1766218830607-BamboozaPistachio.webp"
     },
     {
       "name": "New Dessert",
       "price": 0,
       "description": "Delicious chocolate dessert...",
-      "tagline": "Sweet Treat"
+      "tagline": "Sweet Treat",
+      "image": "/uploads/1766218837625-HaliboNutella.webp"
     }
   ]
 }

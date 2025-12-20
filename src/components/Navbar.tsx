@@ -23,7 +23,7 @@ export default function Navbar() {
                             transition={{ delay: 0.2, duration: 0.5 }}
                         >
                             <Link href="/" className="hover:scale-105 transition-transform">
-                                <img src="/High Laban logo 0.png" alt="HighLaban Logo" className="h-12 w-auto" />
+                                <img src="/uploads/logo.png" alt="HighLaban Logo" className="h-12 w-auto" />
                             </Link>
                         </motion.div>
                         <div className="flex gap-8">

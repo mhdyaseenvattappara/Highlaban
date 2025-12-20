@@ -1,0 +1,9 @@
+[
+  {
+    "city": "Banglore",
+    "address": "Banglore- India",
+    "status": "Coming Soon",
+    "statusColor": "text-orange-500",
+    "isComingSoon": true
+  }
+]

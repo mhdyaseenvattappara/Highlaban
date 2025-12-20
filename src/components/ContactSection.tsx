@@ -8,49 +8,49 @@ import ShineBorder from './ui/shine-border';
 export default function ContactSection() {
     return (
         <Section id="contact" dark className="flex-col">
-            <div className="bg-white rounded-3xl shadow-xl overflow-hidden w-full max-w-6xl flex flex-col md:flex-row min-h-[600px]">
+            <div className="bg-white rounded-3xl shadow-xl overflow-hidden w-full max-w-6xl mx-auto flex flex-col md:flex-row min-h-[600px]">
 
                 {/* Info Side */}
-                <div className="md:w-5/12 bg-[#0066cc] p-12 text-white relative overflow-hidden flex flex-col justify-between">
-                    <div className="relative z-10">
+                <div className="md:w-5/12 bg-[#0066cc] p-6 md:p-12 text-white relative overflow-hidden flex flex-col justify-center items-center text-center">
+                    <div className="relative z-10 w-full flex flex-col items-center">
                         <span className="opacity-70 uppercase tracking-widest text-sm font-bold mb-2 block">Contact Us</span>
                         <h2 className="text-4xl font-bold font-bricolage mb-8">Get in Touch</h2>
-                        <p className="mb-12 text-white/90 text-lg leading-relaxed">
+                        <p className="mb-12 text-white/90 text-lg leading-relaxed max-w-sm">
                             Have a question, feedback, or just want to say hello? We'd love to hear from you.
                         </p>
 
-                        <div className="space-y-8">
-                            <div className="flex items-start gap-4">
-                                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center shrink-0">
-                                    <Phone size={20} />
+                        <div className="space-y-8 w-full">
+                            <div className="flex flex-col items-center gap-2">
+                                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center shrink-0 mb-2">
+                                    <Phone size={24} />
                                 </div>
                                 <div>
-                                    <h4 className="font-bold mb-1 opacity-90">Whatsapp / Call</h4>
-                                    <p className="text-white/90">+91 98765 43210</p>
+                                    <h4 className="font-bold mb-1 opacity-90 text-lg">Whatsapp / Call</h4>
+                                    <p className="text-white/90 text-lg">+91 98765 43210</p>
                                 </div>
                             </div>
-                            <div className="flex items-start gap-4">
-                                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center shrink-0">
-                                    <Mail size={20} />
+                            <div className="flex flex-col items-center gap-2">
+                                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center shrink-0 mb-2">
+                                    <Mail size={24} />
                                 </div>
                                 <div>
-                                    <h4 className="font-bold mb-1 opacity-90">Email</h4>
-                                    <p className="text-white/90">hello@highlaban.com</p>
+                                    <h4 className="font-bold mb-1 opacity-90 text-lg">Email</h4>
+                                    <p className="text-white/90 text-lg">hello@highlaban.com</p>
                                 </div>
                             </div>
-                            <div className="flex items-start gap-4">
-                                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center shrink-0">
-                                    <MapPin size={20} />
+                            <div className="flex flex-col items-center gap-2">
+                                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center shrink-0 mb-2">
+                                    <MapPin size={24} />
                                 </div>
                                 <div>
-                                    <h4 className="font-bold mb-1 opacity-90">Headquarters</h4>
-                                    <p className="text-white/90">Mumbai, Maharashtra</p>
+                                    <h4 className="font-bold mb-1 opacity-90 text-lg">Headquarters</h4>
+                                    <p className="text-white/90 text-lg">Mumbai, Maharashtra</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="relative z-10 mt-12">
+                    <div className="relative z-10 mt-12 flex flex-col items-center">
                         <h4 className="font-bold mb-4 opacity-90">Follow Us</h4>
                         <div className="flex gap-4">
                             <a href="#" className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors transform hover:scale-110">
@@ -71,7 +71,7 @@ export default function ContactSection() {
                 </div>
 
                 {/* Form Side */}
-                <div className="md:w-7/12 p-12 bg-gray-50 flex flex-col justify-center">
+                <div className="md:w-7/12 p-6 md:p-12 bg-gray-50 flex flex-col justify-center">
                     <ContactForm />
                 </div>
             </div>
