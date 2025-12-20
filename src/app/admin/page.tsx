@@ -218,7 +218,7 @@ export default function AdminDashboard() {
                     setConfig(newConfig);
                 } else if (target.type === 'profile') {
                     // Profile Image Update
-                    setUser({ ...user, image: data.url });
+                    if (user) setUser({ ...user, image: data.url });
                 }
                 showMessage('success', 'Image uploaded successfully');
             } else {
