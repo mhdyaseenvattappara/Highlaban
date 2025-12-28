@@ -29,10 +29,10 @@ export default function Section({ id, className = "", children, background = 'wh
             className={`relative py-12 overflow-hidden ${bgColors[finalBackground]} ${className}`}
         >
             <motion.div
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: "easeOut" }}
-                viewport={{ once: true, margin: "-10%" }}
+                viewport={{ once: true, margin: "-15%" }}
+                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }} // Custom cubic bezier for smooth feel
                 className="container mx-auto px-6 z-10 w-full"
             >
                 {children}

@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
+export const dynamic = 'force-dynamic';
+
 const getUsers = () => {
     const usersPath = path.join(process.cwd(), 'src', 'data', 'users.json');
     if (!fs.existsSync(usersPath)) return [];
@@ -55,8 +57,14 @@ export async function PUT(request: Request) {
 
         if (index === -1) return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
+        // Only update password if a new one is provided
+        const updateData = { ...body };
+        if (!updateData.password || updateData.password.trim() === '') {
+            delete updateData.password;
+        }
+
         // Update fields
-        users[index] = { ...users[index], ...body };
+        users[index] = { ...users[index], ...updateData };
         saveUsers(users);
 
         const { password, ...safeUser } = users[index];

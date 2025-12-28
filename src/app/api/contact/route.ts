@@ -5,8 +5,7 @@ import path from 'path';
 
 export async function POST(request: Request) {
     try {
-        const body = await request.json();
-        const { name, phone, subject, message } = body;
+        const { name, email, phone, subject, message } = await request.json();
 
         const messagesPath = path.join(process.cwd(), 'src', 'data', 'messages.json');
 
@@ -23,6 +22,7 @@ export async function POST(request: Request) {
         const newMessage = {
             id: Date.now().toString(),
             name,
+            email,
             phone,
             subject,
             message,

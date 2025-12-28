@@ -7,7 +7,7 @@ import {
     Layout, ShoppingBag, Settings, Image as ImageIcon,
     Search, Bell, Menu, X, Upload, MoreHorizontal,
     BarChart3, Calendar, CheckCircle2, AlertCircle,
-    MapPin, Mail as MailIcon, Trash, Edit3, PlusCircle, Phone as PhoneIcon, User, Users, Shield, LogOut
+    MapPin, Mail as MailIcon, Trash, Edit3, PlusCircle, Phone as PhoneIcon, User, Users, Shield, LogOut, RefreshCw
 } from 'lucide-react';
 
 // --- Types ---
@@ -70,37 +70,44 @@ const LoadingSpinner = () => (
 
 export default function AdminDashboard() {
     // Auth State
-    // Auth State
+
     const [user, setUser] = useState<UserData | null>(null);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [showProfile, setShowProfile] = useState(false);
+    const [editingUser, setEditingUser] = useState<UserData | null>(null); // For Super Admin to edit other users
+    const [showAddProduct, setShowAddProduct] = useState(false);
+    const [showUserModal, setShowUserModal] = useState(false);
 
     // Dashboard State
-    const [activeTab, setActiveTab] = useState<'dashboard' | 'layout' | 'products' | 'locations' | 'inbox' | 'users'>('dashboard');
+    const [activeTab, setActiveTab] = useState<'dashboard' | 'layout' | 'products' | 'locations' | 'inbox' | 'users' | 'story'>('dashboard');
     const [config, setConfig] = useState<PageConfig | null>(null);
     const [products, setProducts] = useState<{ products: Product[] } | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
     const [locations, setLocations] = useState<Location[]>([]);
     const [users, setUsers] = useState<UserData[]>([]);
+    const [story, setStory] = useState<any>(null);
+
+    // New Product State
+    const [newProductImage, setNewProductImage] = useState<string | undefined>(undefined);
 
     // UI State
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
     const [uploading, setUploading] = useState<string | null>(null);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+    const [showPassword, setShowPassword] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     // Editing State (for Layout Tab)
     const [editSectionId, setEditSectionId] = useState<string | null>(null);
-    // User Modal State
-    const [showUserModal, setShowUserModal] = useState(false);
+
 
     // Helpers
     const fileInputRef = useRef<HTMLInputElement>(null);
     const pendingUploadRef = useRef<{
-        type: 'product' | 'content' | 'profile',
+        type: 'product' | 'content' | 'profile' | 'new_product',
         id?: string, // section id
         index?: number, // product index or array index
         key?: string, // content key
@@ -124,10 +131,11 @@ export default function AdminDashboard() {
                 fetch('/api/admin/products'),
                 fetch('/api/admin/messages'),
                 fetch('/api/admin/locations'),
+                fetch('/api/admin/story'),
                 user?.role === 'super_admin' ? fetch('/api/admin/users') : Promise.resolve(null)
             ]);
 
-            const [configRes, productsRes, messagesRes, locationsRes, userRes] = responses;
+            const [configRes, productsRes, messagesRes, locationsRes, storyRes, userRes] = responses;
 
             setConfig(await configRes.json());
             setProducts(await productsRes.json());
@@ -137,6 +145,9 @@ export default function AdminDashboard() {
 
             const locs = await locationsRes.json();
             setLocations(Array.isArray(locs) ? locs : []);
+
+            const storyData = await storyRes.json();
+            setStory(storyData);
 
             if (userRes) {
                 const usersData = await userRes.json();
@@ -150,26 +161,46 @@ export default function AdminDashboard() {
         }
     };
 
+    const refreshMessages = async () => {
+        try {
+            const res = await fetch('/api/admin/messages');
+            const data = await res.json();
+            setMessages(Array.isArray(data) ? data : []);
+            showMessage('success', 'Inbox refreshed');
+        } catch (err) {
+            showMessage('error', 'Failed to refresh inbox');
+        }
+    };
+
+
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
+        console.log('Login attempt started...');
+
         try {
+            console.log('Sending request to /api/auth...');
             const res = await fetch('/api/auth', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password })
             });
+
+            console.log('Response status:', res.status);
             const data = await res.json();
+            console.log('Response data:', data);
 
             if (data.success) {
                 setUser(data.user);
+                setLoading(false);
                 showMessage('success', `Welcome back, ${data.user.name}`);
             } else {
                 showMessage('error', data.error || 'Invalid credentials');
+                setLoading(false);
             }
         } catch (err) {
-            showMessage('error', 'Login failed');
-        } finally {
+            console.error('Login error:', err);
+            showMessage('error', 'Login failed: ' + (err instanceof Error ? err.message : 'Unknown error'));
             setLoading(false);
         }
     };
@@ -204,21 +235,33 @@ export default function AdminDashboard() {
                     newProducts[target.index].image = data.url;
                     setProducts({ products: newProducts });
                 } else if (target.type === 'content' && config && target.id) {
-                    const newConfig = { ...config };
-                    const sectionIdx = newConfig.sections.findIndex(s => s.id === target.id);
-                    if (sectionIdx === -1) throw new Error("Section not found");
+                    // Handle story images
+                    if (target.id === 'story-featured' && story) {
+                        setStory({ ...story, image: data.url });
+                    } else if (target.id === 'story-gallery' && story && target.index !== undefined) {
+                        const newGallery = [...(story.gallery || [])];
+                        newGallery[target.index].url = data.url;
+                        setStory({ ...story, gallery: newGallery });
+                    } else {
+                        // Handle regular content images
+                        const newConfig = { ...config };
+                        const sectionIdx = newConfig.sections.findIndex(s => s.id === target.id);
+                        if (sectionIdx === -1) throw new Error("Section not found");
 
-                    if (target.key && target.index !== undefined && target.subKey) {
-                        // Array item update
-                        newConfig.sections[sectionIdx].content[target.key][target.index][target.subKey] = data.url;
-                    } else if (target.key) {
-                        // Direct field update
-                        newConfig.sections[sectionIdx].content[target.key] = data.url;
+                        if (target.key && target.index !== undefined && target.subKey) {
+                            // Array item update
+                            newConfig.sections[sectionIdx].content[target.key][target.index][target.subKey] = data.url;
+                        } else if (target.key) {
+                            // Direct field update
+                            newConfig.sections[sectionIdx].content[target.key] = data.url;
+                        }
+                        setConfig(newConfig);
                     }
-                    setConfig(newConfig);
                 } else if (target.type === 'profile') {
                     // Profile Image Update
                     if (user) setUser({ ...user, image: data.url });
+                } else if (target.type === 'new_product') {
+                    setNewProductImage(data.url);
                 }
                 showMessage('success', 'Image uploaded successfully');
             } else {
@@ -252,6 +295,11 @@ export default function AdminDashboard() {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(locations),
+                }),
+                fetch('/api/admin/story', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(story),
                 })
             ]);
             showMessage('success', 'Changes synced to live site');
@@ -320,43 +368,112 @@ export default function AdminDashboard() {
     // --- Views ---
 
     if (!user) return (
-        <div className="min-h-screen bg-[#F3F3F3] flex items-center justify-center p-6 font-sans text-slate-800">
-            <div className="max-w-md w-full bg-white rounded-[40px] shadow-2xl shadow-slate-200/50 p-12 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-purple-500" />
-                <div className="mb-10 text-center">
-                    <div className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center mx-auto mb-6 text-white shadow-xl">
-                        <BarChart3 size={32} />
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 flex items-center justify-center p-4 md:p-6 font-sans text-slate-800 relative overflow-hidden">
+            {/* Decorative Background Elements */}
+            <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-blue-200/30 to-cyan-200/30 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+            <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-br from-cyan-200/30 to-blue-200/30 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
+            <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-gradient-to-br from-purple-200/20 to-pink-200/20 rounded-full blur-3xl"></div>
+
+            {/* Login Card */}
+            <div className="max-w-5xl w-full bg-white rounded-3xl md:rounded-[40px] shadow-2xl overflow-hidden relative z-10 flex flex-col md:flex-row">
+
+                {/* Left Side - Login Form */}
+                <div className="w-full md:w-1/2 p-8 md:p-12 lg:p-16 flex flex-col justify-center">
+                    {/* Logo */}
+                    <div className="mb-8 flex justify-center">
+                        <img src="/uploads/logo.png" alt="HighLaban" className="h-20 w-auto" />
                     </div>
-                    <h1 className="text-2xl font-bold tracking-tight mb-2">HighLaban OS</h1>
-                    <p className="text-slate-400 text-sm font-medium">Authenticity Management System</p>
+
+                    <div className="mb-8">
+                        <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-2 text-slate-900">Log In</h1>
+                        <p className="text-slate-500 text-sm font-medium">Welcome back! Please enter your details.</p>
+                    </div>
+
+                    {/* Message Alert */}
+                    <AnimatePresence>
+                        {message && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                className={`p-4 mb-6 rounded-xl flex items-center gap-3 text-sm font-medium ${message.type === 'success'
+                                    ? 'bg-green-50 text-green-700 border border-green-200'
+                                    : 'bg-red-50 text-red-700 border border-red-200'
+                                    }`}
+                            >
+                                {message.type === 'success' ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
+                                {message.text}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    <form onSubmit={handleLogin} className="space-y-6">
+                        <div className="space-y-5">
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-slate-700">Username</label>
+                                <input
+                                    type="text"
+                                    value={username}
+                                    onChange={e => setUsername(e.target.value)}
+                                    placeholder="Enter your username"
+                                    className="w-full bg-white border-2 border-slate-200 px-4 py-3.5 rounded-xl text-sm font-medium focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all placeholder:text-slate-400"
+                                    required
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-slate-700">Password</label>
+                                <div className="relative">
+                                    <input
+                                        type={showPassword ? "text" : "password"}
+                                        value={password}
+                                        onChange={e => setPassword(e.target.value)}
+                                        placeholder="Enter your password"
+                                        className="w-full bg-white border-2 border-slate-200 px-4 py-3.5 pr-12 rounded-xl text-sm font-medium focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all placeholder:text-slate-400"
+                                        required
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                                    >
+                                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl font-bold text-sm uppercase tracking-wide hover:from-blue-700 hover:to-cyan-700 transition-all shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {loading ? 'Logging in...' : 'Log in'}
+                        </button>
+                    </form>
+
+                    {/* Footer Text */}
+                    <div className="mt-8 text-center">
+                        <p className="text-xs text-slate-400 font-medium">
+                            HighLaban Admin Portal • Secure Access
+                        </p>
+                    </div>
                 </div>
-                <form onSubmit={handleLogin} className="space-y-6">
-                    <div className="space-y-4">
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Username</label>
-                            <input
-                                type="text"
-                                value={username}
-                                onChange={e => setUsername(e.target.value)}
-                                placeholder="admin"
-                                className="w-full bg-slate-50 border border-slate-100 px-5 py-4 rounded-2xl text-lg font-bold focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:bg-white transition-all tracking-widest"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Access Key</label>
-                            <input
-                                type="password"
-                                value={password}
-                                onChange={e => setPassword(e.target.value)}
-                                placeholder="••••••••"
-                                className="w-full bg-slate-50 border border-slate-100 px-5 py-4 rounded-2xl text-lg font-bold focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:bg-white transition-all text-center tracking-widest"
-                            />
-                        </div>
+
+                {/* Right Side - Brand Image */}
+                <div className="hidden md:block md:w-1/2 bg-gradient-to-br from-blue-500 to-cyan-400 relative overflow-hidden">
+                    {/* Decorative Circles */}
+                    <div className="absolute top-10 right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+                    <div className="absolute bottom-10 left-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+
+                    {/* Brand Image */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <img
+                            src="/admin-login-bg.png"
+                            alt="HighLaban"
+                            className="w-full h-full object-cover"
+                        />
                     </div>
-                    <button type="submit" className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-sm uppercase tracking-widest hover:bg-black transition-all shadow-lg active:scale-95">
-                        Initialize
-                    </button>
-                </form>
+                </div>
             </div>
         </div>
     );
@@ -376,6 +493,8 @@ export default function AdminDashboard() {
         p.tagline?.toLowerCase().includes(searchQuery.toLowerCase())
     ) || [];
 
+
+
     return (
         <div className="min-h-screen bg-[#F3F3F3] font-sans text-slate-900 flex flex-col md:flex-row overflow-hidden">
             {/* Hidden File Input */}
@@ -388,10 +507,11 @@ export default function AdminDashboard() {
             />
 
             {/* --- SIDEBAR --- */}
-            <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-100 transform ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300 ease-in-out md:static md:w-24 lg:w-72 md:shrink-0 flex flex-col py-8 px-4 lg:px-6`}>
+            <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-100 transform transition-transform duration-300 ease-in-out md:static md:w-24 lg:w-72 md:shrink-0 flex flex-col py-8 px-4 lg:px-6 ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+                }`}>
                 <div className="flex items-center gap-4 mb-12 px-2">
-                    <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white shrink-0 shadow-lg overflow-hidden">
-                        <img src="/uploads/logo.png" alt="HighLaban" className="w-full h-full object-cover" />
+                    <div className="shrink-0">
+                        <img src="/uploads/logo.png" alt="HighLaban" className="h-12 w-auto" />
                     </div>
                     <div className="md:hidden lg:block">
                         <h2 className="font-bold text-lg tracking-tight">HighLaban</h2>
@@ -408,6 +528,7 @@ export default function AdminDashboard() {
                         { id: 'layout', icon: Layout, label: 'Visual Layout' },
                         { id: 'products', icon: ShoppingBag, label: 'Products' },
                         { id: 'locations', icon: MapPin, label: 'Locations' },
+                        { id: 'story', icon: Settings, label: 'Story Page' },
                         { id: 'inbox', icon: MailIcon, label: 'Inbox' },
                         ...(user.role === 'super_admin' ? [{ id: 'users', icon: Users, label: 'Users' }] : [])
                     ].map(item => (
@@ -441,7 +562,7 @@ export default function AdminDashboard() {
             <main className="flex-1 flex flex-col h-screen overflow-hidden relative">
 
                 {/* Header */}
-                <header className="h-20 px-6 md:px-10 flex items-center justify-between bg-white/80 backdrop-blur-xl border-b border-slate-100 md:bg-transparent md:border-none shrink-0 z-30 sticky top-0">
+                <header className="h-20 px-6 md:px-10 flex items-center justify-between bg-white/80 backdrop-blur-xl border-b border-slate-100 md:bg-transparent md:border-none shrink-0 z-30 fixed top-0 left-0 right-0 md:static md:w-auto">
                     <div className="flex items-center gap-4">
                         <button onClick={() => setMobileMenuOpen(true)} className="md:hidden p-2 rounded-xl bg-white border border-slate-100 text-slate-500">
                             <Menu size={20} />
@@ -458,7 +579,7 @@ export default function AdminDashboard() {
                                 value={searchQuery}
                                 onChange={e => setSearchQuery(e.target.value)}
                                 placeholder="Search..."
-                                className="w-64 pl-12 pr-4 py-3 bg-white rounded-full border-none shadow-sm text-sm font-medium focus:ring-2 focus:ring-blue-100 outline-none transition-all placeholder:text-slate-300"
+                                className="w-64 pl-12 pr-4 py-3 bg-white rounded-full border border-slate-100 shadow-sm text-sm font-medium focus:ring-2 focus:ring-blue-500/20 outline-none transition-all placeholder:text-slate-400"
                             />
                         </div>
 
@@ -484,7 +605,7 @@ export default function AdminDashboard() {
                 </header>
 
                 {/* Scrollable Content */}
-                <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-8 scroll-smooth">
+                <div className="flex-1 overflow-y-auto scroll-smooth pt-24 px-4 pb-4 md:p-8 space-y-8">
                     <AnimatePresence mode="wait">
 
                         {/* --- TAB: DASHBOARD --- */}
@@ -562,20 +683,11 @@ export default function AdminDashboard() {
                                 exit={{ opacity: 0, x: -20 }}
                                 className="max-w-4xl mx-auto space-y-4 pb-20"
                             >
-                                <div className="bg-white p-6 rounded-[32px] shadow-sm mb-6 flex items-center justify-between">
+                                <div className="bg-white p-6 rounded-[32px] shadow-sm mb-6">
                                     <div>
                                         <h2 className="text-xl font-bold text-slate-800">Section Manager</h2>
                                         <p className="text-sm text-slate-400 font-medium">Drag to reorder, click to edit.</p>
                                     </div>
-                                    <button
-                                        onClick={() => {
-                                            const id = prompt('Enter new section ID:');
-                                            if (id) setConfig({ ...config, sections: [...config.sections, { id, type: id.charAt(0).toUpperCase() + id.slice(1), isVisible: true, content: {} }] });
-                                        }}
-                                        className="w-12 h-12 rounded-full bg-slate-900 text-white flex items-center justify-center hover:bg-black transition-all shadow-lg"
-                                    >
-                                        <Plus size={20} />
-                                    </button>
                                 </div>
 
                                 {config.sections.map((section, index) => (
@@ -805,20 +917,11 @@ export default function AdminDashboard() {
                                 exit={{ opacity: 0, scale: 0.95 }}
                                 className="space-y-6 max-w-7xl mx-auto pb-20"
                             >
-                                <div className="flex items-center justify-between mb-8">
+
+                                <div className="flex items-center justify-between mb-6 sticky top-0 z-20 bg-[#F3F3F3]/90 backdrop-blur-md py-4">
                                     <h2 className="text-2xl font-bold text-slate-800">Products Catalog</h2>
                                     <button
-                                        onClick={() => {
-                                            const newProduct: Product = {
-                                                name: "New Dessert",
-                                                price: 0,
-                                                description: "Delicious chocolate dessert...",
-                                                tagline: "Sweet Treat"
-                                            };
-                                            setProducts({ products: [...products.products, newProduct] });
-                                            // Ideally scroll to bottom
-                                            setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 100);
-                                        }}
+                                        onClick={() => setShowAddProduct(true)}
                                         className="bg-slate-900 text-white px-6 py-3 rounded-2xl font-bold text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-black transition-all shadow-lg active:scale-95"
                                     >
                                         <Plus size={16} />
@@ -827,112 +930,115 @@ export default function AdminDashboard() {
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                                    {filteredProducts.map((product, idx) => (
-                                        <div key={idx} className="bg-white rounded-[32px] overflow-hidden shadow-sm hover:shadow-xl transition-all group border border-transparent hover:border-slate-50 flex flex-col">
-                                            {/* Image Area */}
-                                            <div className="h-48 bg-slate-50 relative group overflow-hidden p-4">
-                                                {product.image ? (
-                                                    <img src={product.image} className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-110" />
-                                                ) : (
-                                                    <div className="w-full h-full flex items-center justify-center text-slate-300">
-                                                        <ImageIcon size={32} />
+                                    {[...filteredProducts].reverse().map((product, reverseIdx) => {
+                                        const index = filteredProducts.length - 1 - reverseIdx;
+                                        return (
+                                            <div key={index} className="bg-white rounded-[24px] overflow-hidden shadow-sm hover:shadow-xl transition-all group border border-slate-100 flex flex-col">
+                                                {/* Image Area */}
+                                                <div className="h-48 bg-slate-50 relative group overflow-hidden p-4">
+                                                    {product.image ? (
+                                                        <img src={product.image} className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-110" />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center text-slate-300">
+                                                            <ImageIcon size={32} />
+                                                        </div>
+                                                    )}
+                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-2">
+                                                        <button
+                                                            onClick={() => triggerImageUpload({ type: 'product', index: index })}
+                                                            className="bg-white text-slate-900 p-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:scale-105 transition-transform"
+                                                        >
+                                                            Change Image
+                                                        </button>
                                                     </div>
-                                                )}
-                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-2">
-                                                    <button
-                                                        onClick={() => triggerImageUpload({ type: 'product', index: idx })}
-                                                        className="bg-white text-slate-900 p-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:scale-105 transition-transform"
-                                                    >
-                                                        Change Image
-                                                    </button>
                                                 </div>
-                                            </div>
 
-                                            {/* Content Area */}
-                                            <div className="p-6 space-y-4 flex-1 flex flex-col">
-                                                <div className="space-y-2">
-                                                    <div className="flex justify-between items-start">
+                                                {/* Content Area */}
+                                                <div className="p-6 space-y-4 flex-1 flex flex-col">
+                                                    <div className="space-y-2">
+                                                        <div className="flex justify-between items-start">
+                                                            <input
+                                                                value={product.name}
+                                                                onChange={(e) => {
+                                                                    const newProducts = [...products.products];
+                                                                    const realIdx = products.products.findIndex(p => p === product);
+                                                                    newProducts[realIdx].name = e.target.value;
+                                                                    setProducts({ products: newProducts });
+                                                                }}
+                                                                className="text-lg font-bold text-slate-800 bg-transparent focus:bg-slate-50 focus:px-2 -ml-2 rounded-lg outline-none w-full"
+                                                                placeholder="Product Name"
+                                                            />
+                                                            <button
+                                                                onClick={() => {
+                                                                    if (confirm("Delete this product?")) {
+                                                                        const newProducts = products.products.filter(p => p !== product);
+                                                                        setProducts({ products: newProducts });
+                                                                    }
+                                                                }}
+                                                                className="text-slate-300 hover:text-red-500 p-1"
+                                                            >
+                                                                <Trash2 size={16} />
+                                                            </button>
+                                                        </div>
                                                         <input
-                                                            value={product.name}
+                                                            value={product.tagline || ''}
                                                             onChange={(e) => {
                                                                 const newProducts = [...products.products];
                                                                 const realIdx = products.products.findIndex(p => p === product);
-                                                                newProducts[realIdx].name = e.target.value;
+                                                                newProducts[realIdx].tagline = e.target.value;
                                                                 setProducts({ products: newProducts });
                                                             }}
-                                                            className="text-lg font-bold text-slate-800 bg-transparent focus:bg-slate-50 focus:px-2 -ml-2 rounded-lg outline-none w-full"
-                                                            placeholder="Product Name"
+                                                            className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-transparent w-full outline-none"
+                                                            placeholder="TAGLINE OR CATEGORY"
                                                         />
-                                                        <button
-                                                            onClick={() => {
-                                                                if (confirm("Delete this product?")) {
-                                                                    const newProducts = products.products.filter(p => p !== product);
-                                                                    setProducts({ products: newProducts });
-                                                                }
-                                                            }}
-                                                            className="text-slate-300 hover:text-red-500 p-1"
-                                                        >
-                                                            <Trash2 size={16} />
-                                                        </button>
                                                     </div>
-                                                    <input
-                                                        value={product.tagline || ''}
+
+                                                    <textarea
+                                                        value={product.description}
                                                         onChange={(e) => {
                                                             const newProducts = [...products.products];
                                                             const realIdx = products.products.findIndex(p => p === product);
-                                                            newProducts[realIdx].tagline = e.target.value;
+                                                            newProducts[realIdx].description = e.target.value;
                                                             setProducts({ products: newProducts });
                                                         }}
-                                                        className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-transparent w-full outline-none"
-                                                        placeholder="TAGLINE OR CATEGORY"
+                                                        className="w-full bg-slate-50/50 p-3 rounded-xl text-xs font-medium text-slate-600 outline-none resize-none h-20"
+                                                        placeholder="Product description..."
                                                     />
-                                                </div>
 
-                                                <textarea
-                                                    value={product.description}
-                                                    onChange={(e) => {
-                                                        const newProducts = [...products.products];
-                                                        const realIdx = products.products.findIndex(p => p === product);
-                                                        newProducts[realIdx].description = e.target.value;
-                                                        setProducts({ products: newProducts });
-                                                    }}
-                                                    className="w-full bg-slate-50/50 p-3 rounded-xl text-xs font-medium text-slate-600 outline-none resize-none h-20"
-                                                    placeholder="Product description..."
-                                                />
-
-                                                <div className="mt-auto grid grid-cols-2 gap-3 pt-4 border-t border-slate-50">
-                                                    <div>
-                                                        <label className="text-[9px] font-bold text-slate-300 uppercase tracking-widest">Price (₹)</label>
-                                                        <input
-                                                            type="number"
-                                                            value={product.price}
-                                                            onChange={(e) => {
-                                                                const newProducts = [...products.products];
-                                                                const realIdx = products.products.findIndex(p => p === product);
-                                                                newProducts[realIdx].price = Number(e.target.value);
-                                                                setProducts({ products: newProducts });
-                                                            }}
-                                                            className="w-full bg-slate-50 rounded-lg p-2 font-bold text-slate-800 outline-none"
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <label className="text-[9px] font-bold text-slate-300 uppercase tracking-widest">Badge</label>
-                                                        <input
-                                                            value={product.tag || ''}
-                                                            onChange={(e) => {
-                                                                const newProducts = [...products.products];
-                                                                const realIdx = products.products.findIndex(p => p === product);
-                                                                newProducts[realIdx].tag = e.target.value;
-                                                                setProducts({ products: newProducts });
-                                                            }}
-                                                            className="w-full bg-slate-50 rounded-lg p-2 font-bold text-slate-800 outline-none"
-                                                            placeholder="e.g. New"
-                                                        />
+                                                    <div className="mt-auto grid grid-cols-2 gap-3 pt-4 border-t border-slate-50">
+                                                        <div>
+                                                            <label className="text-[9px] font-bold text-slate-300 uppercase tracking-widest">Price (₹)</label>
+                                                            <input
+                                                                type="number"
+                                                                value={product.price}
+                                                                onChange={(e) => {
+                                                                    const newProducts = [...products.products];
+                                                                    const realIdx = products.products.findIndex(p => p === product);
+                                                                    newProducts[realIdx].price = Number(e.target.value);
+                                                                    setProducts({ products: newProducts });
+                                                                }}
+                                                                className="w-full bg-slate-50 rounded-lg p-2 font-bold text-slate-800 outline-none"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="text-[9px] font-bold text-slate-300 uppercase tracking-widest">Name</label>
+                                                            <input
+                                                                value={product.tag || ''}
+                                                                onChange={(e) => {
+                                                                    const newProducts = [...products.products];
+                                                                    const realIdx = products.products.findIndex(p => p === product);
+                                                                    newProducts[realIdx].tag = e.target.value;
+                                                                    setProducts({ products: newProducts });
+                                                                }}
+                                                                className="w-full bg-slate-50 rounded-lg p-2 font-bold text-slate-800 outline-none"
+                                                                placeholder="e.g. New"
+                                                            />
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </motion.div>
                         )}
@@ -1093,6 +1199,13 @@ export default function AdminDashboard() {
                                             Clear All
                                         </button>
                                     )}
+                                    <button
+                                        onClick={refreshMessages}
+                                        className="text-xs font-bold text-slate-500 uppercase tracking-widest hover:bg-slate-100 px-4 py-2 rounded-xl transition-all flex items-center gap-2"
+                                    >
+                                        <RefreshCw size={14} />
+                                        Refresh
+                                    </button>
                                 </div>
 
                                 <div className="space-y-4">
@@ -1170,6 +1283,258 @@ export default function AdminDashboard() {
                             </motion.div>
                         )}
 
+                        {/* --- TAB: STORY --- */}
+                        {activeTab === 'story' && story && (
+                            <motion.div
+                                key="story"
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.95 }}
+                                className="space-y-6 max-w-7xl mx-auto pb-20"
+                            >
+                                <div className="flex items-center justify-between mb-8">
+                                    <h2 className="text-2xl font-bold text-slate-800">Story Page Editor</h2>
+                                </div>
+
+                                <div className="space-y-6">
+                                    {/* Hero Section */}
+                                    <div className="bg-white p-8 rounded-[32px] shadow-sm space-y-6">
+                                        <h3 className="text-lg font-bold text-slate-800 mb-4">Hero Section</h3>
+                                        <div className="space-y-4">
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Title</label>
+                                                <input
+                                                    value={story.hero.title}
+                                                    onChange={(e) => setStory({ ...story, hero: { ...story.hero, title: e.target.value } })}
+                                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Subtitle</label>
+                                                <input
+                                                    value={story.hero.subtitle}
+                                                    onChange={(e) => setStory({ ...story, hero: { ...story.hero, subtitle: e.target.value } })}
+                                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Beginning Section */}
+                                    <div className="bg-white p-8 rounded-[32px] shadow-sm space-y-6">
+                                        <h3 className="text-lg font-bold text-slate-800 mb-4">The Beginning</h3>
+                                        <div className="space-y-4">
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Section Title</label>
+                                                <input
+                                                    value={story.beginning.title}
+                                                    onChange={(e) => setStory({ ...story, beginning: { ...story.beginning, title: e.target.value } })}
+                                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                                                />
+                                            </div>
+                                            {story.beginning.paragraphs.map((para: string, idx: number) => (
+                                                <div key={idx} className="space-y-2">
+                                                    <div className="flex items-center justify-between">
+                                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Paragraph {idx + 1}</label>
+                                                        {story.beginning.paragraphs.length > 1 && (
+                                                            <button
+                                                                onClick={() => {
+                                                                    const newParas = story.beginning.paragraphs.filter((_: any, i: number) => i !== idx);
+                                                                    setStory({ ...story, beginning: { ...story.beginning, paragraphs: newParas } });
+                                                                }}
+                                                                className="text-red-400 hover:text-red-600 p-1"
+                                                            >
+                                                                <Trash2 size={14} />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                    <textarea
+                                                        value={para}
+                                                        onChange={(e) => {
+                                                            const newParas = [...story.beginning.paragraphs];
+                                                            newParas[idx] = e.target.value;
+                                                            setStory({ ...story, beginning: { ...story.beginning, paragraphs: newParas } });
+                                                        }}
+                                                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all min-h-[100px]"
+                                                    />
+                                                </div>
+                                            ))}
+                                            <button
+                                                onClick={() => {
+                                                    setStory({ ...story, beginning: { ...story.beginning, paragraphs: [...story.beginning.paragraphs, ''] } });
+                                                }}
+                                                className="text-xs font-bold text-blue-500 uppercase tracking-widest hover:text-blue-600 flex items-center gap-2"
+                                            >
+                                                <Plus size={14} /> Add Paragraph
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Mission & Promise */}
+                                    <div className="grid md:grid-cols-2 gap-6">
+                                        <div className="bg-white p-8 rounded-[32px] shadow-sm space-y-4">
+                                            <h3 className="text-lg font-bold text-slate-800 mb-4">Mission</h3>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Title</label>
+                                                <input
+                                                    value={story.mission.title}
+                                                    onChange={(e) => setStory({ ...story, mission: { ...story.mission, title: e.target.value } })}
+                                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Content</label>
+                                                <textarea
+                                                    value={story.mission.content}
+                                                    onChange={(e) => setStory({ ...story, mission: { ...story.mission, content: e.target.value } })}
+                                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all min-h-[100px]"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-white p-8 rounded-[32px] shadow-sm space-y-4">
+                                            <h3 className="text-lg font-bold text-slate-800 mb-4">Promise</h3>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Title</label>
+                                                <input
+                                                    value={story.promise.title}
+                                                    onChange={(e) => setStory({ ...story, promise: { ...story.promise, title: e.target.value } })}
+                                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Content</label>
+                                                <textarea
+                                                    value={story.promise.content}
+                                                    onChange={(e) => setStory({ ...story, promise: { ...story.promise, content: e.target.value } })}
+                                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all min-h-[100px]"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Image Section */}
+                                    <div className="bg-white p-8 rounded-[32px] shadow-sm space-y-4">
+                                        <h3 className="text-lg font-bold text-slate-800 mb-4">Featured Image</h3>
+                                        <div className="space-y-4">
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Image URL</label>
+                                                <div className="flex gap-2">
+                                                    <input
+                                                        value={story.image}
+                                                        onChange={(e) => setStory({ ...story, image: e.target.value })}
+                                                        className="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                                                    />
+                                                    <button
+                                                        onClick={() => triggerImageUpload({ type: 'content', id: 'story-featured', key: 'image' })}
+                                                        className="bg-blue-600 text-white px-4 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-blue-700 transition-all flex items-center gap-2"
+                                                    >
+                                                        <Upload size={16} />
+                                                        Upload
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Image Caption</label>
+                                                <input
+                                                    value={story.imageCaption}
+                                                    onChange={(e) => setStory({ ...story, imageCaption: e.target.value })}
+                                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                                                />
+                                            </div>
+                                            {story.image && (
+                                                <div className="mt-4">
+                                                    <img src={story.image} alt="Preview" className="w-full max-w-md rounded-2xl shadow-lg" />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Photo Gallery */}
+                                    <div className="bg-white p-8 rounded-[32px] shadow-sm space-y-6">
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="text-lg font-bold text-slate-800">Photo Gallery</h3>
+                                            <button
+                                                onClick={() => {
+                                                    const newGallery = [...(story.gallery || []), { url: '', caption: '' }];
+                                                    setStory({ ...story, gallery: newGallery });
+                                                }}
+                                                className="bg-slate-900 text-white px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-black transition-all"
+                                            >
+                                                <Plus size={14} />
+                                                Add Photo
+                                            </button>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            {[...(story.gallery || [])].reverse().map((photo: any, reverseIdx: number) => {
+                                                const idx = (story.gallery?.length || 0) - 1 - reverseIdx;
+                                                return (
+                                                    <div key={idx} className="bg-slate-50 p-6 rounded-2xl space-y-4 relative group">
+                                                        <button
+                                                            onClick={() => {
+                                                                const newGallery = story.gallery.filter((_: any, i: number) => i !== idx);
+                                                                setStory({ ...story, gallery: newGallery });
+                                                            }}
+                                                            className="absolute top-4 right-4 p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                                                        >
+                                                            <Trash2 size={16} />
+                                                        </button>
+
+                                                        <div className="space-y-2">
+                                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Image URL</label>
+                                                            <div className="flex gap-2">
+                                                                <input
+                                                                    value={photo.url}
+                                                                    onChange={(e) => {
+                                                                        const newGallery = [...story.gallery];
+                                                                        newGallery[idx].url = e.target.value;
+                                                                        setStory({ ...story, gallery: newGallery });
+                                                                    }}
+                                                                    className="flex-1 bg-white border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                                                                />
+                                                                <button
+                                                                    onClick={() => triggerImageUpload({ type: 'content', id: 'story-gallery', key: 'gallery', index: idx })}
+                                                                    className="bg-blue-600 text-white px-4 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-blue-700 transition-all flex items-center gap-2"
+                                                                >
+                                                                    <Upload size={14} />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="space-y-2">
+                                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Caption</label>
+                                                            <input
+                                                                value={photo.caption}
+                                                                onChange={(e) => {
+                                                                    const newGallery = [...story.gallery];
+                                                                    newGallery[idx].caption = e.target.value;
+                                                                    setStory({ ...story, gallery: newGallery });
+                                                                }}
+                                                                className="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                                                            />
+                                                        </div>
+
+                                                        {photo.url && (
+                                                            <div className="mt-4">
+                                                                <img src={photo.url} alt={photo.caption} className="w-full aspect-square object-cover rounded-xl shadow-md" />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
+
+                                        {(!story.gallery || story.gallery.length === 0) && (
+                                            <div className="text-center py-12 text-slate-400">
+                                                <p className="font-medium">No photos in gallery yet. Click "Add Photo" to get started.</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+
                         {/* --- TAB: USERS --- */}
                         {activeTab === 'users' && user.role === 'super_admin' && (
                             <motion.div
@@ -1193,23 +1558,31 @@ export default function AdminDashboard() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                     {users.map((u) => (
                                         <div key={u.id} className="bg-white p-6 rounded-[32px] shadow-sm flex items-center gap-4 relative group">
-                                            <button
-                                                onClick={() => {
-                                                    if (confirm(`Delete user ${u.name}?`)) {
-                                                        fetch(`/api/admin/users?id=${u.id}`, { method: 'DELETE' }).then(res => res.json()).then(data => {
-                                                            if (data.success) {
-                                                                setUsers(users.filter(usr => usr.id !== u.id));
-                                                                showMessage('success', 'User deleted');
-                                                            } else {
-                                                                showMessage('error', data.error);
-                                                            }
-                                                        });
-                                                    }
-                                                }}
-                                                className="absolute top-4 right-4 text-slate-300 hover:text-red-500 hidden group-hover:block"
-                                            >
-                                                <Trash2 size={18} />
-                                            </button>
+                                            <div className="absolute top-4 right-4 flex gap-2">
+                                                <button
+                                                    onClick={() => setEditingUser(u)}
+                                                    className="text-slate-300 hover:text-blue-500 hidden group-hover:block"
+                                                >
+                                                    <Edit3 size={18} />
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        if (confirm(`Delete user ${u.name}?`)) {
+                                                            fetch(`/api/admin/users?id=${u.id}`, { method: 'DELETE' }).then(res => res.json()).then(data => {
+                                                                if (data.success) {
+                                                                    setUsers(users.filter(usr => usr.id !== u.id));
+                                                                    showMessage('success', 'User deleted');
+                                                                } else {
+                                                                    showMessage('error', data.error);
+                                                                }
+                                                            });
+                                                        }
+                                                    }}
+                                                    className="text-slate-300 hover:text-red-500 hidden group-hover:block"
+                                                >
+                                                    <Trash2 size={18} />
+                                                </button>
+                                            </div>
 
                                             <img src={u.image} alt={u.name} className="w-16 h-16 rounded-2xl bg-slate-100 object-cover" />
                                             <div>
@@ -1251,150 +1624,325 @@ export default function AdminDashboard() {
 
                     </AnimatePresence>
                 </div>
-            </main>
+            </main >
 
             {/* Profile Modal - Editable */}
             <AnimatePresence>
-                {showProfile && (
-                    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-                        <motion.div
-                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-                            onClick={() => setShowProfile(false)}
-                        />
-                        <motion.div
-                            initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
-                            className="bg-white rounded-[32px] p-8 w-full max-w-md relative z-10 shadow-2xl"
-                        >
-                            <div className="flex justify-between items-center mb-6">
-                                <h3 className="text-2xl font-bold text-slate-800">Edit Profile</h3>
-                                <button onClick={() => setShowProfile(false)} className="text-slate-400 hover:text-slate-600"><X size={24} /></button>
-                            </div>
+                {
+                    showProfile && (
+                        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+                            <motion.div
+                                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                                className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                                onClick={() => setShowProfile(false)}
+                            />
+                            <motion.div
+                                initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+                                className="bg-white rounded-[32px] p-8 w-full max-w-md relative z-10 shadow-2xl"
+                            >
+                                <div className="flex justify-between items-center mb-6">
+                                    <h3 className="text-2xl font-bold text-slate-800">Edit Profile</h3>
+                                    <button onClick={() => setShowProfile(false)} className="text-slate-400 hover:text-slate-600"><X size={24} /></button>
+                                </div>
 
-                            <div className="flex flex-col items-center gap-4 mb-8">
-                                <div className="w-24 h-24 rounded-full bg-slate-100 overflow-hidden relative group cursor-pointer" onClick={() => triggerImageUpload({ type: 'profile', id: 'profile', key: 'image' })}>
-                                    <img src={user?.image} className="w-full h-full object-cover" />
-                                    <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white">
-                                        <Edit3 size={24} />
+                                <div className="flex flex-col items-center gap-4 mb-8">
+                                    <div className="w-24 h-24 rounded-full bg-slate-100 overflow-hidden relative group cursor-pointer" onClick={() => triggerImageUpload({ type: 'profile', id: 'profile', key: 'image' })}>
+                                        <img src={user?.image} className="w-full h-full object-cover" />
+                                        <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white">
+                                            <Edit3 size={24} />
+                                        </div>
+                                    </div>
+                                    <div className="text-center w-full">
+                                        <input
+                                            value={user?.name || ''}
+                                            onChange={e => setUser({ ...user!, name: e.target.value })}
+                                            className="font-bold text-lg text-center w-full bg-transparent border-b border-transparent hover:border-slate-200 focus:border-blue-500 outline-none pb-1"
+                                        />
+                                        <p className="text-sm text-slate-400 font-bold uppercase tracking-widest mt-1">{user?.role.replace('_', ' ')}</p>
                                     </div>
                                 </div>
-                                <div className="text-center w-full">
-                                    <input
-                                        value={user?.name || ''}
-                                        onChange={e => setUser({ ...user!, name: e.target.value })}
-                                        className="font-bold text-lg text-center w-full bg-transparent border-b border-transparent hover:border-slate-200 focus:border-blue-500 outline-none pb-1"
-                                    />
-                                    <p className="text-sm text-slate-400 font-bold uppercase tracking-widest mt-1">{user?.role.replace('_', ' ')}</p>
-                                </div>
-                            </div>
 
-                            <div className="space-y-4">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Username</label>
-                                    <input
-                                        value={user?.username || ''}
-                                        onChange={e => setUser({ ...user!, username: e.target.value })}
-                                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
-                                    />
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Username</label>
+                                        <input
+                                            value={user?.username || ''}
+                                            onChange={e => setUser({ ...user!, username: e.target.value })}
+                                            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">New Password (Optional)</label>
+                                        <input
+                                            type="password"
+                                            value={user?.password || ''}
+                                            placeholder="Change password..."
+                                            onChange={e => {
+                                                const val = e.target.value;
+                                                setUser(prev => prev ? ({ ...prev, password: val }) : null);
+                                            }}
+                                            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                                        />
+                                    </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">New Password (Optional)</label>
-                                    <input
-                                        type="password"
-                                        placeholder="Change password..."
-                                        onChange={e => {
-                                            const val = e.target.value;
-                                            if (val) setUser({ ...user!, password: val });
-                                        }}
-                                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
-                                    />
-                                </div>
-                            </div>
 
-                            <button
-                                onClick={async () => {
-                                    if (!user) return;
-                                    const res = await fetch('/api/admin/users', {
-                                        method: 'PUT',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify(user)
-                                    });
-                                    const data = await res.json();
-                                    if (data.success) {
-                                        showMessage('success', 'Profile updated');
-                                        setShowProfile(false);
-                                    } else {
-                                        showMessage('error', 'Failed to update');
-                                    }
-                                }}
-                                className="w-full py-4 mt-8 bg-blue-600 text-white rounded-2xl font-bold uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-200"
-                            >
-                                Save Changes
-                            </button>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
+                                <button
+                                    onClick={async () => {
+                                        if (!user) return;
+                                        const res = await fetch('/api/admin/users', {
+                                            method: 'PUT',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify(user)
+                                        });
+                                        const data = await res.json();
+                                        if (data.success) {
+                                            showMessage('success', 'Profile updated');
+                                            setShowProfile(false);
+                                        } else {
+                                            showMessage('error', 'Failed to update');
+                                        }
+                                    }}
+                                    className="w-full py-4 mt-8 bg-blue-600 text-white rounded-2xl font-bold uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-200"
+                                >
+                                    Save Changes
+                                </button>
+                            </motion.div>
+                        </div>
+                    )
+                }
+            </AnimatePresence >
 
             {/* Add User Modal */}
             <AnimatePresence>
-                {showUserModal && (
-                    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-                        <motion.div
-                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-                            onClick={() => setShowUserModal(false)}
-                        />
-                        <motion.div
-                            initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
-                            className="bg-white rounded-[32px] p-8 w-full max-w-md relative z-10 shadow-2xl"
-                        >
-                            <h3 className="text-2xl font-bold text-slate-800 mb-6">Add New User</h3>
-                            <form onSubmit={(e) => {
-                                e.preventDefault();
-                                const formData = new FormData(e.currentTarget);
-                                fetch('/api/admin/users', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify(Object.fromEntries(formData))
-                                }).then(res => res.json()).then(data => {
-                                    if (data.success) {
-                                        setUsers([...users, data.user]);
-                                        showMessage('success', 'User added');
-                                        setShowUserModal(false);
-                                    } else {
-                                        showMessage('error', data.error || 'Failed to add user');
-                                    }
-                                });
-                            }} className="space-y-4">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Name</label>
-                                    <input name="name" required className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 outline-none" placeholder="John Doe" />
+                {
+                    showUserModal && (
+                        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+                            <motion.div
+                                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                                className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                                onClick={() => setShowUserModal(false)}
+                            />
+                            <motion.div
+                                initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+                                className="bg-white rounded-[32px] p-8 w-full max-w-md relative z-10 shadow-2xl"
+                            >
+                                <h3 className="text-2xl font-bold text-slate-800 mb-6">Add New User</h3>
+                                <form onSubmit={(e) => {
+                                    e.preventDefault();
+                                    const formData = new FormData(e.currentTarget);
+                                    fetch('/api/admin/users', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify(Object.fromEntries(formData))
+                                    }).then(res => res.json()).then(data => {
+                                        if (data.success) {
+                                            setUsers([...users, data.user]);
+                                            showMessage('success', 'User added');
+                                            setShowUserModal(false);
+                                        } else {
+                                            showMessage('error', data.error || 'Failed to add user');
+                                        }
+                                    });
+                                }} className="space-y-4">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Name</label>
+                                        <input name="name" required className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 outline-none" placeholder="John Doe" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Username</label>
+                                        <input name="username" required className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 outline-none" placeholder="johndoe" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Password</label>
+                                        <input name="password" type="password" required className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 outline-none" placeholder="••••••••" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Role</label>
+                                        <select name="role" className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 outline-none">
+                                            <option value="user">User</option>
+                                            <option value="admin">Admin</option>
+                                            <option value="super_admin">Super Admin</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" className="w-full py-4 mt-4 bg-slate-900 text-white rounded-2xl font-bold uppercase tracking-widest hover:bg-black transition-all">
+                                        Create User
+                                    </button>
+                                </form>
+                            </motion.div>
+                        </div>
+                    )
+                }
+            </AnimatePresence >
+            {/* Edit User Modal (Super Admin) */}
+            <AnimatePresence>
+                {
+                    editingUser && (
+                        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+                            <motion.div
+                                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                                className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                                onClick={() => setEditingUser(null)}
+                            />
+                            <motion.div
+                                initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+                                className="bg-white rounded-[32px] p-8 w-full max-w-md relative z-10 shadow-2xl"
+                            >
+                                <div className="flex justify-between items-center mb-6">
+                                    <h3 className="text-2xl font-bold text-slate-800">Edit User</h3>
+                                    <button onClick={() => setEditingUser(null)} className="text-slate-400 hover:text-slate-600"><X size={24} /></button>
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Username</label>
-                                    <input name="username" required className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 outline-none" placeholder="johndoe" />
+
+                                <div className="flex flex-col items-center gap-4 mb-8">
+                                    <div className="w-24 h-24 rounded-full bg-slate-100 overflow-hidden relative group cursor-pointer" onClick={() => triggerImageUpload({ type: 'profile', id: 'editing_user', key: 'image' })}>
+                                        <img src={editingUser.image} className="w-full h-full object-cover" />
+                                        <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white">
+                                            <Edit3 size={24} />
+                                        </div>
+                                    </div>
+                                    <div className="text-center w-full">
+                                        <input
+                                            value={editingUser.name}
+                                            onChange={e => setEditingUser({ ...editingUser, name: e.target.value })}
+                                            className="font-bold text-lg text-center w-full bg-transparent border-b border-transparent hover:border-slate-200 focus:border-blue-500 outline-none pb-1"
+                                        />
+                                        <p className="text-sm text-slate-400 font-bold uppercase tracking-widest mt-1">{editingUser.role.replace('_', ' ')}</p>
+                                    </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Password</label>
-                                    <input name="password" type="password" required className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 outline-none" placeholder="••••••••" />
+
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Username</label>
+                                        <input
+                                            value={editingUser.username}
+                                            onChange={e => setEditingUser({ ...editingUser, username: e.target.value })}
+                                            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">New Password (Optional)</label>
+                                        <input
+                                            type="password"
+                                            value={editingUser.password || ''}
+                                            placeholder="Change password..."
+                                            onChange={e => {
+                                                const val = e.target.value;
+                                                setEditingUser(prev => prev ? ({ ...prev, password: val }) : null);
+                                            }}
+                                            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                                        />
+                                    </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Role</label>
-                                    <select name="role" className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 outline-none">
-                                        <option value="user">User</option>
-                                        <option value="admin">Admin</option>
-                                        <option value="super_admin">Super Admin</option>
-                                    </select>
-                                </div>
-                                <button type="submit" className="w-full py-4 mt-4 bg-slate-900 text-white rounded-2xl font-bold uppercase tracking-widest hover:bg-black transition-all">
-                                    Create User
+
+                                <button
+                                    onClick={async () => {
+                                        if (!editingUser) return;
+                                        const res = await fetch('/api/admin/users', {
+                                            method: 'PUT',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify(editingUser)
+                                        });
+                                        const data = await res.json();
+                                        if (data.success) {
+                                            setUsers(users.map(u => u.id === editingUser.id ? editingUser : u));
+                                            showMessage('success', 'User updated');
+                                            setEditingUser(null);
+                                        } else {
+                                            showMessage('error', data.error || 'Failed to update user');
+                                        }
+                                    }}
+                                    className="w-full py-4 mt-8 bg-blue-600 text-white rounded-2xl font-bold uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-200"
+                                >
+                                    Save Changes
                                 </button>
-                            </form>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
+                            </motion.div>
+                        </div>
+                    )
+                }
+            </AnimatePresence >
+
+            {/* Add Product Modal */}
+            <AnimatePresence>
+                {
+                    showAddProduct && (
+                        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+                            <motion.div
+                                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                                className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                                onClick={() => setShowAddProduct(false)}
+                            />
+                            <motion.div
+                                initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+                                className="bg-white rounded-[32px] p-8 w-full max-w-md relative z-10 shadow-2xl overflow-y-auto max-h-[90vh]"
+                            >
+                                <h3 className="text-2xl font-bold text-slate-800 mb-6">Add New Product</h3>
+                                <form onSubmit={(e) => {
+                                    e.preventDefault();
+                                    const formData = new FormData(e.currentTarget);
+                                    const newProduct: Product = {
+                                        name: formData.get('name') as string,
+                                        price: Number(formData.get('price')),
+                                        description: formData.get('description') as string,
+                                        tagline: formData.get('tagline') as string,
+                                        tag: formData.get('tag') as string,
+                                        // Default image until changed
+                                        image: newProductImage
+                                    };
+
+                                    setProducts({ products: [...(products?.products || []), newProduct] });
+                                    showMessage('success', 'Product added successfully');
+                                    setShowAddProduct(false);
+                                    setNewProductImage(undefined);
+                                    setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 100);
+
+                                }} className="space-y-4">
+                                    <div className="flex justify-center mb-4">
+                                        <div
+                                            onClick={() => triggerImageUpload({ type: 'new_product' })}
+                                            className="w-32 h-32 bg-slate-100 rounded-2xl flex items-center justify-center cursor-pointer border-2 border-dashed border-slate-300 hover:border-blue-500 overflow-hidden relative group"
+                                        >
+                                            {newProductImage ? (
+                                                <img src={newProductImage} alt="New product" className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="flex flex-col items-center gap-2 text-slate-400">
+                                                    <ImageIcon size={24} />
+                                                    <span className="text-[10px] font-bold uppercase">Upload</span>
+                                                </div>
+                                            )}
+                                            <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                                                <Upload size={20} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Product Name</label>
+                                        <input name="name" required className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 outline-none" placeholder="e.g. Pistachio Kunafa" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tagline / Category</label>
+                                        <input name="tagline" className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 outline-none" placeholder="e.g. Sweet Treat" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Price (₹)</label>
+                                        <input name="price" type="number" required className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 outline-none" placeholder="0" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Description</label>
+                                        <textarea name="description" rows={3} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 outline-none resize-none" placeholder="Product details..." />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Badge (Optional)</label>
+                                        <input name="tag" className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 outline-none" placeholder="e.g. New" />
+                                    </div>
+                                    <button type="submit" className="w-full py-4 mt-4 bg-slate-900 text-white rounded-2xl font-bold uppercase tracking-widest hover:bg-black transition-all">
+                                        Add Product
+                                    </button>
+                                </form>
+                            </motion.div>
+                        </div>
+                    )
+                }
+            </AnimatePresence >
+
             <AnimatePresence>
                 {message && (
                     <motion.div
@@ -1408,7 +1956,7 @@ export default function AdminDashboard() {
                     </motion.div>
                 )}
             </AnimatePresence>
-        </div>
+        </div >
     );
 }
 

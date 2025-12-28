@@ -5,8 +5,8 @@
   --font-secondary: var(--font-secondary);
   --font-bricolage: var(--font-bricolage);
 
-  --color-primary: #0066cc;
-  --color-secondary: #00ccff;
+  --color-primary: #1F83B5;
+  --color-secondary: #27AAE1;
   --color-tertiary: #004c99;
   --color-background: #f0f9ff;
   --color-foreground: #0f172a;
@@ -16,6 +16,7 @@
   --animate-marquee: marquee 25s linear infinite;
   --animate-marquee-reverse: marquee-reverse 25s linear infinite;
   --animate-morph: morph 8s ease-in-out infinite;
+  --animate-spin-slow: spin 8s linear infinite;
 
   @keyframes float {
 
@@ -78,6 +79,65 @@
 
   body {
     @apply bg-[--color-background] text-[--color-foreground] antialiased overflow-x-hidden leading-tight;
+  }
+
+  /* Milk Effects */
+  @keyframes milk-splash {
+
+    0%,
+    100% {
+      transform: scale(1) translateY(0);
+      opacity: 0.3;
+    }
+
+    50% {
+      transform: scale(1.2) translateY(-10px);
+      opacity: 0.6;
+    }
+  }
+
+  @keyframes milk-flow {
+    0% {
+      transform: translateY(-100%) rotate(0deg);
+      opacity: 0;
+    }
+
+    50% {
+      opacity: 0.4;
+    }
+
+    100% {
+      transform: translateY(100vh) rotate(360deg);
+      opacity: 0;
+    }
+  }
+
+  @keyframes milk-bubble {
+    0% {
+      transform: translateY(0) scale(0);
+      opacity: 0;
+    }
+
+    50% {
+      opacity: 0.5;
+    }
+
+    100% {
+      transform: translateY(-100vh) scale(1);
+      opacity: 0;
+    }
+  }
+
+  .milk-splash {
+    animation: milk-splash 3s ease-in-out infinite;
+  }
+
+  .milk-flow {
+    animation: milk-flow 15s linear infinite;
+  }
+
+  .milk-bubble {
+    animation: milk-bubble 8s ease-in-out infinite;
   }
 }
 

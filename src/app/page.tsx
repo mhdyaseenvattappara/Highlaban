@@ -5,7 +5,7 @@ import LiquidCursor from '@/components/LiquidCursor';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import LoadingScreen from '@/components/LoadingScreen';
-import ScrollToTop from '@/components/ScrollToTop';
+
 import ScrollProgress from '@/components/ScrollProgress';
 import { Reveal } from '@/components/Reveal';
 
@@ -60,7 +60,7 @@ export default function Home() {
       })}
 
       <Footer />
-      <ScrollToTop />
+
     </main>
   );
 }

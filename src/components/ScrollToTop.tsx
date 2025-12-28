@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ArrowUp } from 'lucide-react';
+import { ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ScrollToTop() {
@@ -23,7 +23,7 @@ export default function ScrollToTop() {
     const scrollToTop = () => {
         window.scrollTo({
             top: 0,
-            behavior: 'smooth'
+            behavior: 'smooth',
         });
     };
 
@@ -35,10 +35,10 @@ export default function ScrollToTop() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}
                     onClick={scrollToTop}
-                    className="fixed bottom-24 md:bottom-8 right-8 z-[60] bg-white border-2 border-[#0066cc] text-[#0066cc] p-4 rounded-full shadow-xl hover:bg-[#0066cc] hover:text-white hover:-translate-y-1 transition-all group"
+                    className="fixed bottom-8 right-8 z-[100] p-4 bg-white border-2 border-blue-500 rounded-full text-blue-500 shadow-lg hover:bg-blue-500 hover:text-white transition-colors duration-300 group"
                     aria-label="Scroll to top"
                 >
-                    <ArrowUp className="w-6 h-6 group-hover:animate-bounce" />
+                    <ChevronUp size={24} className="stroke-[3]" />
                 </motion.button>
             )}
         </AnimatePresence>

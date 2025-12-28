@@ -86,13 +86,16 @@ export default function DessertCard({ name, price, tag, tagline, isNew, descript
                         ₹{price}
                     </div>
 
-                    <motion.button
+                    <motion.a
+                        href={`https://wa.me/919745823864?text=I would like to order ${encodeURIComponent(name)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         whileHover={{ scale: 1.1, backgroundColor: "#2563eb" }}
                         whileTap={{ scale: 0.95 }}
-                        className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-full text-xs font-black shadow-lg shadow-blue-200 uppercase tracking-widest transition-all"
+                        className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-full text-xs font-black shadow-lg shadow-blue-200 uppercase tracking-widest transition-all inline-block w-fit mx-auto"
                     >
                         Order
-                    </motion.button>
+                    </motion.a>
                 </div>
             </div>
         </motion.div>

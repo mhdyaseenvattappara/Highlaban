@@ -1,0 +1,53 @@
+{
+  "hero": {
+    "title": "Our Story",
+    "subtitle": "Where tradition meets innovation in every bite."
+  },
+  "beginning": {
+    "title": "The Beginning",
+    "paragraphs": [
+      "Founded with a passion for authentic dairy, High Laban began as a small family initiative to bring pure, additive-free Laban to our community. What started in a modest kitchen has grown into a beloved brand, but our core values remain unchanged.",
+      "We believe that great food brings people together. That's why every product we create is a labor of love, designed to evoke memories of traditional flavors while introducing exciting new twists."
+    ]
+  },
+  "mission": {
+    "title": "Our Mission",
+    "content": "To redefine the dessert experience by combining the richness of Egyptian heritage with contemporary culinary innovation, ensuring every spoon serves joy and quality."
+  },
+  "promise": {
+    "title": "Our Promise",
+    "content": "Zero preservatives. Premium ingredients. Freshly made daily. We promise uncompromised quality from our farm to your table."
+  },
+  "image": "/uploads/1766947280577-589253835_17856281454574648_5223114489888006154_n.jpg",
+  "imageCaption": "Crafting Joy Since 2024",
+  "gallery": [
+    {
+      "url": "/uploads/1766947478279-584393735_17855242866574648_4218714858658399699_n.jpg",
+      "caption": "Get High On Bites... Sweetness that surprises everyone - big or small!"
+    },
+    {
+      "url": "/uploads/1766947689432-587657540_17855242911574648_5148582331240096396_n.jpg",
+      "caption": "Get High On Bites... Sweetness settled... Now let the rest begin"
+    },
+    {
+      "url": "/uploads/1766947788303-589110044_17855245026574648_924932049950218571_n.jpg",
+      "caption": "Fuel Your Day the Natural Way. High Laban"
+    },
+    {
+      "url": "/uploads/1766947829007-589250220_17856281508574648_3309303266232770898_n.jpg",
+      "caption": "Vote 4 High Laban"
+    },
+    {
+      "url": "/uploads/1766948077475-587013043_17854734822574648_2989840668696955058_n.jpg",
+      "caption": "Get High On Bites"
+    },
+    {
+      "url": "/uploads/1766948099033-586923370_17854740246574648_5002384981269202725_n.jpg",
+      "caption": "We're Coming"
+    },
+    {
+      "url": "/uploads/1766948239992-588205824_17854740258574648_5436788831503529563_n.jpg",
+      "caption": "Get High On Bite"
+    }
+  ]
+}

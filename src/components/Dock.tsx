@@ -75,7 +75,7 @@ export default function Dock() {
                 <div className="w-px h-6 bg-gray-200 mx-2" />
 
                 <a
-                    href="https://wa.me/919876543210"
+                    href="https://wa.me/919745823864"
                     target="_blank"
                     className="p-3 text-green-500 hover:scale-110 transition-transform hover:bg-green-50 rounded-xl"
                 >

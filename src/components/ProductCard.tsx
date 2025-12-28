@@ -74,13 +74,16 @@ export default function ProductCard({ name, description, price, tag, tagline, is
                             ₹{price}
                         </span>
                     </div>
-                    <motion.button
+                    <motion.a
+                        href={`https://wa.me/919745823864?text=I would like to order ${encodeURIComponent(name)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         whileHover={{ scale: 1.05, boxShadow: "0 10px 25px rgba(0,102,204,0.3)" }}
                         whileTap={{ scale: 0.95 }}
-                        className="px-8 py-3 bg-blue-600 text-white rounded-2xl font-black text-sm hover:bg-blue-500 transition-all duration-300 shadow-blue-200 uppercase tracking-widest transform"
+                        className="px-8 py-3 bg-blue-600 text-white rounded-2xl font-black text-sm hover:bg-blue-500 transition-all duration-300 shadow-blue-200 uppercase tracking-widest transform inline-block text-center"
                     >
                         Order
-                    </motion.button>
+                    </motion.a>
                 </div>
             </div>
         </motion.div>

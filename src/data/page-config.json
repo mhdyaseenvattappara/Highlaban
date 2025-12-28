@@ -7,7 +7,13 @@
       "content": {
         "title1": "GET HIGH",
         "title2": "ON BITE",
-        "subtitle": "Experience Egypt's Finest Creamy Desserts"
+        "subtitle": "Experience Egypt's Finest Creamy Desserts",
+        "videoUrl": "https://www.instagram.com/p/DR1kF9lD6oF/",
+        "heroImages": [
+          "/uploads/hero1.jpg",
+          "/uploads/hero2.jpg",
+          "/uploads/hero3.jpg"
+        ]
       }
     },
     {
@@ -19,39 +25,16 @@
       }
     },
     {
-      "id": "stats",
-      "type": "StatsSection",
-      "isVisible": true,
-      "content": {
-        "stats": [
-          {
-            "targetValue": "1",
-            "suffix": "+",
-            "label": "Locations"
-          },
-          {
-            "targetValue": 100,
-            "suffix": "K+",
-            "label": "Happy Customers"
-          },
-          {
-            "targetValue": 25,
-            "suffix": "+",
-            "label": "Dessert Varieties"
-          }
-        ]
-      }
-    },
-    {
       "id": "about",
       "type": "AboutSection",
       "isVisible": true,
       "content": {
         "title": "Our Story",
         "subtitle": "Where Tradition Meets Innovation",
-        "description1": "Rooted in time-honored Egyptian recipes and crafted with only the finest ingredients, our signature desserts are rich, creamy and irresistibly delicious. HIGHLABAN brings you authentic Egyptian desserts that celebrate tradition while creating unforgettable flavor experiences.",
-        "description2": "Every bite is a journey through tradition and indulgence, made with love by our passionate, expertly trained team.",
-        "subdescription": "We are proud to be India's first dedicated Egyptian dessert brand. From our signature Lou'a to the viral Pistachio Kunafa Bomb, we craft happiness in every droplet.",
+        "description1": "Founded with a passion for authentic dairy, High Laban began as a small family initiative to bring pure, additive-free Laban to our community.",
+        "description2": "Today, we continue that legacy by combining traditional methods with modern quality standards, ensuring every bottle delivers the fresh, crisp taste you love.",
+        "subdescription": "From our farm to your table, we promise uncompromised quality and a taste that brings people together.",
+        "image": "/uploads/1766940324111-589253835_17856281454574648_5223114489888006154_n.jpg",
         "features": [
           "Authentic Recipes",
           "Premium Ingredients",

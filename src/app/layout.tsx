@@ -1,6 +1,10 @@
 import type { Metadata } from 'next';
 import { Bricolage_Grotesque } from 'next/font/google';
 import './globals.css';
+import ScrollToTop from '@/components/ScrollToTop';
+import MilkBackground from '@/components/MilkBackground';
+
+import SmoothScroll from '@/components/SmoothScroll';
 
 const bricolage = Bricolage_Grotesque({ subsets: ['latin'], variable: '--font-primary' });
 const bricolageSecondary = Bricolage_Grotesque({ subsets: ['latin'], variable: '--font-secondary' });
@@ -21,7 +25,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning className={`${bricolage.variable} ${bricolageSecondary.variable} ${bricolageTertiary.variable}`}>
-      <body className={`${bricolageSecondary.className} font-secondary`}>{children}</body>
+      <body className={`${bricolageSecondary.className} font-secondary`}>
+        <MilkBackground />
+        {children}
+
+      </body>
     </html>
   );
 }
