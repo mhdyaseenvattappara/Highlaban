@@ -5,6 +5,10 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const IS_DEV = process.env.NODE_ENV === 'development';
+// Force "Production Mode" IF we are not in development. 
+// Vercel sets NODE_ENV=production automatically.
+// If you are locally seeing this error, it means NODE_ENV is "production" OR the fallback failed.
+console.log(`[Storage] Environment: ${process.env.NODE_ENV}, IS_DEV: ${IS_DEV}`);
 
 export const storageService = {
     // Generic Data Operations
@@ -101,16 +105,18 @@ export const storageService = {
         // In production, upload to Firebase Storage
         try {
             const filename = `${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
+            // Use the initialized storage instance which already has the bucket config
             const storageRef = ref(storage, `${folder}/${filename}`);
 
+            console.log(`[Storage] Uploading to bucket: ${storage.app.options.storageBucket}`);
+
             const bytes = await file.arrayBuffer();
-            // Firebase Storage uploadBytes takes multiple formats, Buffer/ArrayBuffer works.
             const metadata = {
                 contentType: file.type,
             };
 
-            await uploadBytes(storageRef, bytes, metadata);
-            const url = await getDownloadURL(storageRef);
+            const snapshot = await uploadBytes(storageRef, bytes, metadata);
+            const url = await getDownloadURL(snapshot.ref);
             console.log(`[Storage] Uploaded file to Firebase Storage: ${url}`);
             return url;
         } catch (e) {

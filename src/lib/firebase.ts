@@ -13,6 +13,17 @@ const firebaseConfig = {
     measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
+// Debug: Check if config is loaded in Vercel
+const missingKeys = Object.entries(firebaseConfig)
+    .filter(([key, value]) => !value)
+    .map(([key]) => key);
+
+if (missingKeys.length > 0) {
+    console.error('CRITICAL: Missing Firebase Environment Variables:', missingKeys.join(', '));
+} else {
+    console.log('Firebase Config loaded successfully');
+}
+
 import { getStorage } from "firebase/storage";
 
 // Initialize Firebase
