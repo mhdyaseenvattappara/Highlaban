@@ -15,6 +15,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'picsum.photos',
       },
+      {
+        protocol: 'https',
+        hostname: '*.public.blob.vercel-storage.com',
+      },
     ],
     unoptimized: true, // Optional: keep this if you want to save bandwidth on Vercel Image Optimization
   },

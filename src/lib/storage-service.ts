@@ -1,8 +1,8 @@
 import fs from 'fs';
 import path from 'path';
-import { db, storage } from './firebase';
+import { db } from './firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { put } from '@vercel/blob';
 
 const IS_DEV = process.env.NODE_ENV === 'development';
 // Force "Production Mode" IF we are not in development. 
@@ -102,25 +102,21 @@ export const storageService = {
             }
         }
 
-        // In production, upload to Firebase Storage
+        // In production, upload to Vercel Blob
         try {
             const filename = `${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
-            // Use the initialized storage instance which already has the bucket config
-            const storageRef = ref(storage, `${folder}/${filename}`);
 
-            console.log(`[Storage] Uploading to bucket: ${storage.app.options.storageBucket}`);
+            // Upload to Vercel Blob
+            // Note: BLOB_READ_WRITE_TOKEN must be set in your Vercel Environment Variables
+            const { url } = await put(filename, file, {
+                access: 'public',
+                token: process.env.BLOB_READ_WRITE_TOKEN // Optional if env var is set correctly, but good to be explicit or if we need to pass it
+            });
 
-            const bytes = await file.arrayBuffer();
-            const metadata = {
-                contentType: file.type,
-            };
-
-            const snapshot = await uploadBytes(storageRef, bytes, metadata);
-            const url = await getDownloadURL(snapshot.ref);
-            console.log(`[Storage] Uploaded file to Firebase Storage: ${url}`);
+            console.log(`[Storage] Uploaded file to Vercel Blob: ${url}`);
             return url;
         } catch (e) {
-            console.error('[Storage] Firebase Upload Error:', e);
+            console.error('[Storage] Vercel Blob Upload Error:', e);
             throw e;
         }
     }
