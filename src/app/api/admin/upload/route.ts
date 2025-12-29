@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { storageService } from '@/lib/storage-service';
 
 export async function POST(request: Request) {
     try {
@@ -11,23 +10,11 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
         }
 
-        const bytes = await file.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-
-        // Create a unique filename
-        const filename = `${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
-        const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-        }
-
-        const filePath = path.join(uploadDir, filename);
-        fs.writeFileSync(filePath, buffer);
+        const url = await storageService.uploadFile(file, 'uploads');
 
         return NextResponse.json({
             success: true,
-            url: `/uploads/${filename}`
+            url
         });
     } catch (error) {
         console.error('Upload error:', error);

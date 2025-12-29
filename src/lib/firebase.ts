@@ -13,14 +13,17 @@ const firebaseConfig = {
     measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
+import { getStorage } from "firebase/storage";
+
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(app);
 const auth = getAuth(app);
+const storage = getStorage(app);
 
 let analytics;
 if (typeof window !== 'undefined') {
     analytics = getAnalytics(app);
 }
 
-export { app, db, auth, analytics };
+export { app, db, auth, storage, analytics };

@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { storageService } from '@/lib/storage-service';
 import { revalidatePath } from 'next/cache';
 
 export const dynamic = 'force-dynamic';
@@ -8,9 +7,7 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const configPath = path.join(process.cwd(), 'src', 'data', 'page-config.json');
-
-        fs.writeFileSync(configPath, JSON.stringify(body, null, 2), 'utf8');
+        await storageService.saveData('page-config', body);
         revalidatePath('/');
 
         return NextResponse.json({ success: true });
@@ -22,9 +19,8 @@ export async function POST(request: Request) {
 
 export async function GET() {
     try {
-        const configPath = path.join(process.cwd(), 'src', 'data', 'page-config.json');
-        const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-        return NextResponse.json(config);
+        const config = await storageService.getData('page-config');
+        return NextResponse.json(config || {});
     } catch (error) {
         return NextResponse.json({ error: 'Failed to load configuration' }, { status: 500 });
     }

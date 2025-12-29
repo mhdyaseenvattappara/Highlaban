@@ -1,20 +1,18 @@
 
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { storageService } from '@/lib/storage-service';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
     try {
         const { username, password } = await request.json();
-        const usersPath = path.join(process.cwd(), 'src', 'data', 'users.json');
+        const users = await storageService.getData<any[]>('users');
 
-        if (!fs.existsSync(usersPath)) {
+        if (!users) {
             return NextResponse.json({ success: false, error: 'User database not found' }, { status: 500 });
         }
 
-        const users = JSON.parse(fs.readFileSync(usersPath, 'utf8'));
         const user = users.find((u: any) => u.username === username && u.password === password);
 
         if (user) {

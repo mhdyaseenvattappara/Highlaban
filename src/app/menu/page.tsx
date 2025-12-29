@@ -1,22 +1,15 @@
 
-import fs from 'fs';
-import path from 'path';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
 import LiquidCursor from '@/components/LiquidCursor';
+import { storageService } from '@/lib/storage-service';
 
 export const dynamic = 'force-dynamic';
 
-export default function MenuPage() {
-    const productsPath = path.join(process.cwd(), 'src', 'data', 'products.json');
-    let products = [];
-    try {
-        const data = JSON.parse(fs.readFileSync(productsPath, 'utf8'));
-        products = data.products || [];
-    } catch (error) {
-        console.error("Failed to load products", error);
-    }
+export default async function MenuPage() {
+    const data = await storageService.getData<any>('products') || {};
+    const products = data.products || [];
 
     return (
         <main className="min-h-screen bg-[#f0f9ff] relative selection:bg-blue-200 selection:text-blue-900">

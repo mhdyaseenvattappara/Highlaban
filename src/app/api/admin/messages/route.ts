@@ -1,20 +1,16 @@
 
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { storageService } from '@/lib/storage-service';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
     try {
-        const messagesPath = path.join(process.cwd(), 'src', 'data', 'messages.json');
+        let messages = await storageService.getData<any[]>('messages');
 
-        if (!fs.existsSync(messagesPath)) {
+        if (!messages) {
             return NextResponse.json([]);
         }
-
-        const fileContent = fs.readFileSync(messagesPath, 'utf8');
-        const messages = JSON.parse(fileContent);
 
         // Sort by date desc
         messages.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -31,22 +27,17 @@ export async function DELETE(request: Request) {
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
         const clearAll = searchParams.get('all');
-        const messagesPath = path.join(process.cwd(), 'src', 'data', 'messages.json');
 
-        if (!fs.existsSync(messagesPath)) {
-            return NextResponse.json({ success: true });
-        }
-
-        let messages = JSON.parse(fs.readFileSync(messagesPath, 'utf8'));
+        let messages = await storageService.getData<any[]>('messages') || [];
 
         if (clearAll === 'true') {
-            fs.writeFileSync(messagesPath, JSON.stringify([], null, 2));
+            await storageService.saveData('messages', []);
             return NextResponse.json({ success: true });
         }
 
         if (id) {
             messages = messages.filter((msg: any) => msg.id !== id);
-            fs.writeFileSync(messagesPath, JSON.stringify(messages, null, 2));
+            await storageService.saveData('messages', messages);
             return NextResponse.json({ success: true });
         }
 

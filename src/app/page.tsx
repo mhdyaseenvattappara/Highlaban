@@ -1,5 +1,3 @@
-import fs from 'fs';
-import path from 'path';
 import { SECTION_COMPONENTS } from '@/lib/sections-registry';
 import LiquidCursor from '@/components/LiquidCursor';
 import Navbar from '@/components/Navbar';
@@ -8,26 +6,18 @@ import LoadingScreen from '@/components/LoadingScreen';
 
 import ScrollProgress from '@/components/ScrollProgress';
 import { Reveal } from '@/components/Reveal';
+import { storageService } from '@/lib/storage-service';
 
 export const dynamic = 'force-dynamic';
 
-export default function Home() {
+export default async function Home() {
   // Read Config
-  const configPath = path.join(process.cwd(), 'src', 'data', 'page-config.json');
-  const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  const config = await storageService.getData<any>('page-config') || { sections: [] };
 
   // Read Dynamic Data
-  const productsPath = path.join(process.cwd(), 'src', 'data', 'products.json');
-  const productsData = JSON.parse(fs.readFileSync(productsPath, 'utf8'));
+  const productsData = await storageService.getData<any>('products') || { products: [] };
 
-  const locationsPath = path.join(process.cwd(), 'src', 'data', 'locations.json');
-  let locationsData = [];
-  try {
-    locationsData = JSON.parse(fs.readFileSync(locationsPath, 'utf8'));
-  } catch (e) {
-    // Locations file might not exist initially or be empty
-    locationsData = [];
-  }
+  const locationsData = await storageService.getData<any>('locations') || [];
 
   return (
     <main className="min-h-screen bg-[--color-background] relative selection:bg-blue-200 selection:text-blue-900 overflow-x-hidden">

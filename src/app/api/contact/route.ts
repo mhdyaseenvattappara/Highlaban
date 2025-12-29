@@ -1,22 +1,14 @@
 
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { storageService } from '@/lib/storage-service';
 
 export async function POST(request: Request) {
     try {
         const { name, email, phone, subject, message } = await request.json();
 
-        const messagesPath = path.join(process.cwd(), 'src', 'data', 'messages.json');
-
-        let messages = [];
-        if (fs.existsSync(messagesPath)) {
-            const fileContent = fs.readFileSync(messagesPath, 'utf8');
-            try {
-                messages = JSON.parse(fileContent);
-            } catch (e) {
-                messages = [];
-            }
+        let messages = await storageService.getData<any[]>('messages');
+        if (!messages) {
+            messages = [];
         }
 
         const newMessage = {
@@ -31,7 +23,7 @@ export async function POST(request: Request) {
         };
 
         messages.push(newMessage);
-        fs.writeFileSync(messagesPath, JSON.stringify(messages, null, 2));
+        await storageService.saveData('messages', messages);
 
         return NextResponse.json({ success: true, message: 'Message sent successfully' });
     } catch (error) {
