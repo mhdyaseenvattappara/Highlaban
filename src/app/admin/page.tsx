@@ -92,7 +92,7 @@ export default function AdminDashboard() {
     const [newProductImage, setNewProductImage] = useState<string | undefined>(undefined);
 
     // UI State
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [uploading, setUploading] = useState<string | null>(null);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
@@ -115,6 +115,10 @@ export default function AdminDashboard() {
     } | null>(null);
 
     // --- Effects ---
+
+    useEffect(() => {
+        checkSession();
+    }, []);
 
     useEffect(() => {
         if (!user) return;
@@ -202,6 +206,33 @@ export default function AdminDashboard() {
             console.error('Login error:', err);
             showMessage('error', 'Login failed: ' + (err instanceof Error ? err.message : 'Unknown error'));
             setLoading(false);
+        }
+    };
+
+    const checkSession = async () => {
+        try {
+            const res = await fetch('/api/auth');
+            const data = await res.json();
+            if (data.authenticated && data.user) {
+                setUser(data.user);
+                // Don't set loading false here, let loadData do it
+            } else {
+                setLoading(false);
+            }
+        } catch (err) {
+            console.error('Session check failed', err);
+            setLoading(false);
+        }
+    };
+
+    const handleLogout = async () => {
+        try {
+            await fetch('/api/auth', { method: 'DELETE' });
+            setUser(null);
+            showMessage('success', 'Logged out successfully');
+        } catch (err) {
+            console.error('Logout failed', err);
+            setUser(null); // Force logout anyway
         }
     };
 
@@ -548,7 +579,7 @@ export default function AdminDashboard() {
                 </nav>
 
                 <div className="mt-auto pt-8 border-t border-slate-50">
-                    <button onClick={() => setUser(null)} className="flex items-center gap-4 p-3 text-red-400 hover:bg-red-50 rounded-2xl w-full transition-all">
+                    <button onClick={handleLogout} className="flex items-center gap-4 p-3 text-red-400 hover:bg-red-50 rounded-2xl w-full transition-all">
                         <LogOut size={20} />
                         <span className="font-bold text-sm md:hidden lg:block">Sign Out</span>
                     </button>
